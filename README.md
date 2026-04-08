@@ -38,7 +38,6 @@ Context management intersects both: retrieval feeds the context window; a poison
 | `benchmarks/` | Benchmark sources and audit notes |
 | `datasets/` | Paper matrices (CSV/XLSX) |
 | `scripts/` | Automation: PDF extraction, sync, BibTeX gen |
-| `templates/` | Templates for analyses and reference summaries |
 
 ## Tools under investigation
 
