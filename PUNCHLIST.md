@@ -29,3 +29,11 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[-]` skipped (see R
 - [ ] HELMET (princeton-nlp/HELMET · arxiv:2410.02694) — comprehensive application-centric benchmark for long-context LLM evaluation; 7 task categories, up to 128K tokens
 - [ ] LongBench v1 (THUDM/LongBench · arxiv:2308.14508) — bilingual multitask benchmark; 21 datasets, 6 task categories, avg 6.7K tokens (ACL 2024)
 - [ ] LongBench v2 (THUDM/LongBench · arxiv:2412.15204) — harder reasoning on realistic long-context multitasks (ACL 2025)
+
+## Scripts
+
+- [ ] `scripts/extract_pdf.py` — extract PDFs to Markdown snapshots via marker-pdf
+- [ ] `scripts/sync_ref.py` — download PDFs listed in PUNCHLIST.md to `references/papers/`
+- [ ] `scripts/build_reference_index.py` — generate/sync BibTeX and reference index
+
+> Note: `scripts/README.md` documents `.sh` equivalents that don't exist — reconcile naming.
