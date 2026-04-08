@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Large binary files — use Git LFS instead
+*.pdf
+
+# Editor
+.idea/
+*.swp
