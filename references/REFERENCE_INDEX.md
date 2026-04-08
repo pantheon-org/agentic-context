@@ -8,7 +8,7 @@ For full content, open the linked file. For papers, see `references/papers/` for
 
 ## Compression & summarization
 
-_Papers and tools focused on reducing token count while preserving semantics._
+*Papers and tools focused on reducing token count while preserving semantics.*
 
 | Slug | Author | Description |
 |---|---|---|
@@ -24,7 +24,7 @@ _Papers and tools focused on reducing token count while preserving semantics._
 
 ## Tiered loading & injection
 
-_Systems with priority-based context injection (L0/L1/L2, lazy vs eager)._
+*Systems with priority-based context injection (L0/L1/L2, lazy vs eager).*
 
 | Slug | Author | Description |
 |---|---|---|
@@ -33,7 +33,7 @@ _Systems with priority-based context injection (L0/L1/L2, lazy vs eager)._
 
 ## Token budgeting & eviction
 
-_Hard caps, soft priorities, eviction policies, overflow handling._
+*Hard caps, soft priorities, eviction policies, overflow handling.*
 
 | Slug | Author | Description |
 |---|---|---|
@@ -42,7 +42,7 @@ _Hard caps, soft priorities, eviction policies, overflow handling._
 
 ## Session-level context tooling
 
-_Production CLI/daemon tools that manage context at the session level._
+*Production CLI/daemon tools that manage context at the session level.*
 
 | Slug | Author | Description |
 |---|---|---|
@@ -56,7 +56,7 @@ _Production CLI/daemon tools that manage context at the session level._
 
 ## Benchmarks & evaluation
 
-_Datasets and evaluation frameworks for context management quality._
+*Datasets and evaluation frameworks for context management quality.*
 
 | Slug | Author | Description |
 |---|---|---|
@@ -65,7 +65,7 @@ _Datasets and evaluation frameworks for context management quality._
 
 ## Surveys
 
-_Overview papers covering context management broadly._
+*Overview papers covering context management broadly.*
 
 | Slug | Author | Description |
 |---|---|---|

@@ -1,0 +1,3 @@
+[tools]
+lefthook = "2.1.4"
+"github:swanysimon/mdlint" = "0.3.15"

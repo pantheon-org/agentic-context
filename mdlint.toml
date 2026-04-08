@@ -1,0 +1,23 @@
+default_enabled = true
+gitignore = true
+
+# Do not auto-fix during pre-commit — fixes would modify unstaged file content
+fix = false
+
+# Disable line-length rule — prose-heavy research repo with long paragraphs
+[rules.MD013]
+enabled = false
+
+# Frontmatter workaround — mdlint 0.3.15 does not skip YAML front matter blocks,
+# so these rules misfire on frontmatter fields (title:, source:, context:)
+[rules.MD041]
+enabled = false
+
+[rules.MD022]
+enabled = false
+
+[rules.MD003]
+enabled = false
+
+[rules.MD034]
+enabled = false

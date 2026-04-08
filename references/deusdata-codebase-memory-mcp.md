@@ -3,12 +3,7 @@ title: "codebase-memory-mcp"
 author: "DeusData"
 date: 2026-04-08
 type: reference
-tags:
-  - tool
-  - mcp
-  - code-intelligence
-  - knowledge-graph
-  - context-compression
+tags: [tool, mcp, code-intelligence, knowledge-graph, context-compression]
 source: "https://github.com/DeusData/codebase-memory-mcp"
 version: "v2.6.0"
 context: "Reduces context window usage in agentic coding workflows by replacing file-by-file grep with structured graph queries. Directly relevant to the compression & context-efficiency axis."
@@ -34,7 +29,7 @@ Most code-intelligence tools for LLMs (e.g. SocratiCode) rely on Docker, vector 
 
 The server is written in pure C. Source layout (from README):
 
-```
+```text
 src/
   main.c              Entry point (MCP stdio server + CLI + install/update/config)
   mcp/                MCP server (14 tools, JSON-RPC 2.0, session detection, auto-index)

@@ -1,0 +1,5 @@
+pre-commit:
+  commands:
+    mdlint:
+      glob: "*.md"
+      run: mdlint check {staged_files}
