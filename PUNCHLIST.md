@@ -8,16 +8,16 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[-]` skipped (see R
 
 ## Tools
 
-- [ ] serena (oraios/serena) — MCP toolkit for coding; semantic retrieval + editing via language server
-- [ ] rtk (rtk-ai/rtk) — CLI proxy; filters tool output noise, 60-90% token reduction on dev commands
-- [ ] qmd (tobi/qmd) — local BM25+vector search engine for docs/notes; MCP plugin
-- [ ] caveman (JuliusBrussee/caveman) — Claude Code skill; caveman-speak output compression, claims 65% token reduction
-- [ ] context-mode (mksglu/context-mode) — MCP plugin; sandboxes tool output to protect context window; claims 98% token reduction
-- [ ] jcodemunch-mcp (jgravelle/jcodemunch-mcp) — token-efficient MCP for code exploration via tree-sitter AST parsing
-- [ ] codebase-memory-mcp (DeusData/codebase-memory-mcp) — code intelligence MCP; indexes codebase into knowledge graph; 66 languages, claims 99% fewer tokens
-- [ ] SocratiCode (giancarloerra/SocratiCode) — codebase intelligence MCP; hybrid semantic search + dependency graphs; claims 61% fewer tokens
-- [ ] jdocmunch-mcp (jgravelle/jdocmunch-mcp) — token-efficient MCP for doc retrieval via structured section indexing
-- [ ] n2-arachne (choihyunsus/n2-arachne) — assembles code context (tree/deps/semantic) to fit context windows without noise
+- [x] serena (oraios/serena) — MCP toolkit for coding; semantic retrieval + editing via language server
+- [x] rtk (rtk-ai/rtk) — CLI proxy; filters tool output noise, 60-90% token reduction on dev commands
+- [x] qmd (tidyinfo/qmd) — local BM25+vector search engine for docs/notes; MCP plugin
+- [x] caveman (JuliusBrussee/caveman) — Claude Code skill; caveman-speak output compression, claims 65% token reduction
+- [x] context-mode (mksglu/context-mode) — MCP plugin; sandboxes tool output to protect context window; claims 98% token reduction
+- [x] jcodemunch-mcp (jgravelle/jcodemunch-mcp) — token-efficient MCP for code exploration via tree-sitter AST parsing
+- [x] codebase-memory-mcp (DeusData/codebase-memory-mcp) — code intelligence MCP; indexes codebase into knowledge graph; 66 languages, claims 99% fewer tokens
+- [x] SocratiCode (giancarloerra/SocratiCode) — codebase intelligence MCP; hybrid semantic search + dependency graphs; claims 61% fewer tokens
+- [x] jdocmunch-mcp (jgravelle/jdocmunch-mcp) — token-efficient MCP for doc retrieval via structured section indexing
+- [x] n2-arachne (choihyunsus/n2-arachne) — assembles code context (tree/deps/semantic) to fit context windows without noise
 
 ## Papers
 
