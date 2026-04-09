@@ -1,3 +1,6 @@
 [submodule "tools/context-mode"]
 	path = tools/context-mode
 	url = https://github.com/mksglu/context-mode
+[submodule "tools/deusdata-codebase-memory-mcp"]
+	path = tools/deusdata-codebase-memory-mcp
+	url = https://github.com/DeusData/codebase-memory-mcp

@@ -18,7 +18,7 @@ See `AGENTS.md` for the full triage workflow.
 | 2026-04-09 | tobi-qmd | tool | pending | Node.js on-device hybrid search (BM25/vec/HyDE) for markdown; MCP server with lex/vec/hyde query types + RRF reranking; Claude Code plugin; 20.3k stars; MIT |
 | 2026-04-08 | juliusbrussee-caveman | tool | pending | Claude Code skill that forces caveman-speak output; claims 65% output-token and 45% input-token reduction via companion compress sub-tool |
 | 2026-04-08 | choihyunsus-n2-arachne | tool | pending | MCP server that assembles code context (tree/deps/semantic) into a token-budgeted payload; hybrid BM25 + vector search with dependency graph traversal |
-| 2026-04-08 | deusdata-codebase-memory-mcp | tool | pending | Code intelligence MCP server; indexes codebase into SQLite knowledge graph; 66 languages; claims 99% fewer tokens vs file-by-file grep |
+| 2026-04-09 | deusdata-codebase-memory-mcp | tool | analysis | Code intelligence MCP server; indexes codebase into SQLite knowledge graph; 66 languages; claims 99% fewer tokens vs file-by-file grep |
 | 2026-04-08 | jgravelle-jdocmunch-mcp | tool | pending | Token-efficient MCP server for structured doc retrieval via section-level indexing |
 | 2026-04-08 | oraios-serena | tool | pending | MCP server providing LSP-backed semantic code retrieval and editing for coding agents |
 | 2026-04-09 | context-mode | tool | analysis | MCP plugin that sandboxes tool output into subprocesses; claims 98% token reduction and session continuity via SQLite/FTS5 |
