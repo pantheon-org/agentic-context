@@ -4,9 +4,9 @@ Automation for PDF extraction, reference sync, and BibTeX generation.
 
 | Script | Purpose |
 |---|---|
-| `extract-pdf.sh` | Run `marker-pdf` on `references/papers/*.pdf` → `.md` snapshots |
-| `generate-bib.sh` | Fetch BibTeX from arxiv API for all paper IDs → `references/bib/` |
-| `sync-refs.sh` | Download PDFs listed in `PUNCHLIST.md` to `references/papers/` |
+| `extract_pdf.py` | Run `marker-pdf` on `references/papers/*.pdf` → `.md` snapshots |
+| `build_reference_index.py` | Fetch BibTeX from arxiv API for all paper IDs → `references/bib/` |
+| `sync_ref.py` | Download PDFs listed in `PUNCHLIST.md` to `references/papers/` |
 
 ## PDF extraction
 

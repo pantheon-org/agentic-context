@@ -12,6 +12,8 @@ For full content, open the linked file. For papers, see `references/papers/` for
 
 | Slug | Author | Description |
 |---|---|---|
+| [jiang-llmlingua](jiang-llmlingua.md) | Jiang et al. | Coarse-to-fine prompt compression: budget controller + iterative token-level removal + instruction tuning; up to 20× compression with small accuracy loss; EMNLP 2023 |
+| [zhang-recursive-lm](zhang-recursive-lm.md) | Zhang et al. | Inference paradigm: LLM programmatically decomposes and recursively calls itself over long-input snippets; processes 100× context window; RLM-Qwen3-8B +28.3% over base model (preprint 2025) |
 | [juliusbrussee-caveman](juliusbrussee-caveman.md) | JuliusBrussee | Claude Code skill: forces caveman-speak output via system-prompt constraint; companion compress sub-tool rewrites memory files; claims 65% output / 45% input token reduction (MIT) |
 | [choihyunsus-n2-arachne](choihyunsus-n2-arachne.md) | choihyunsus | MCP server: 4-layer context assembly (tree + target + deps + semantic), hybrid BM25/vector search, dependency graph traversal, token-budget paging; reports 333× compression on 3,219-file project (Apache-2.0) |
 | [context-mode](web/context-mode.md) | mksglu | MCP plugin: subprocess sandbox keeps raw tool output out of context window; reports 98% median token reduction; session continuity via SQLite/FTS5 (ELv2) |
@@ -50,7 +52,7 @@ For full content, open the linked file. For papers, see `references/papers/` for
 | [context-mode](web/context-mode.md) | mksglu | MCP plugin: subprocess sandbox + SQLite/FTS5 event log; extends session from ~30 min to ~3 hours via BM25 compaction recovery; 12 platforms (ELv2) |
 | [rtk](rtk.md) | rtk-ai | CLI proxy: transparent hook-based output compression for 100+ dev commands; single Rust binary, <10 ms overhead, no LLM involvement (Apache-2.0) |
 | [giancarloerra-socraticode](giancarloerra-socraticode.md) | giancarloerra | MCP server: hybrid semantic+BM25 codebase search, AST-aware chunking, polyglot dependency graphs, zero-config local-first (AGPL-3.0) |
-| [tidyinfo-qmd](tidyinfo-qmd.md) | tidyinfo (tobil) | Single-binary Rust MCP server: BM25+vector hybrid search over local markdown, SQLite storage, no runtime deps (MIT/Apache-2.0) |
+| [tobi-qmd](tobi-qmd.md) | tobi | Node.js MCP server: BM25/vec/HyDE hybrid search over local markdown, lex/vec/hyde query types + RRF reranking, Claude Code plugin, SQLite storage; 20.3k stars (MIT) |
 
 ---
 
@@ -60,6 +62,9 @@ For full content, open the linked file. For papers, see `references/papers/` for
 
 | Slug | Author | Description |
 |---|---|---|
+| [yen-helmet](yen-helmet.md) | Yen et al. (Princeton NLP) | 7-category application-centric long-context benchmark; up to 128K tokens; 59 LCLMs; NIAH unreliable; RAG tasks best proxy; ACL 2024/2025 |
+| [bai-longbench](bai-longbench.md) | Bai et al. | First bilingual (EN+ZH) multitask long-context benchmark; 21 datasets, 6 categories, avg 6.7K EN tokens; ACL 2024 |
+| [bai-longbench-v2](bai-longbench-v2.md) | Bai et al. | Harder reasoning benchmark; 503 MCQs, 8K–2M words; human 53.7%, best model 50.1%, o1-preview 57.7%; ACL 2025 |
 
 ---
 
