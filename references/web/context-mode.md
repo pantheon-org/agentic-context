@@ -5,7 +5,8 @@ date: 2026-04-08
 type: reference
 tags: [tool, mcp-server, cli, daemon]
 source: "https://github.com/mksglu/context-mode"
-version: "v1.0.75"
+version: "v1.0.75 (601aaf1)"
+local_clone: "../tools/context-mode"
 context: "Session-level context optimisation; directly relevant to token budgeting, compression, and session continuity research"
 ---
 
