@@ -14,7 +14,58 @@ This repo collects, summarizes, and analyzes tooling and papers related to **con
 
 ## Workflows
 
-Use the **`triage-paper`** and **`triage-tool`** skills — they contain the full step-by-step workflows for adding references, triaging systems, updating `REVIEWED.md` and `REFERENCE_INDEX.md`, and vendoring tools.
+The full research pipeline has four stages. Each stage has dedicated skills.
+
+### Stage 1 — Discovery
+
+Find candidates before committing to a triage.
+
+| Skill | Use when |
+|---|---|
+| `tessl__semantic-scholar-search` | Default. Official API, supports citation graphs and author lookup. |
+| `tessl__google-scholar-search` | Fallback when Semantic Scholar has no coverage. Scraping-based. |
+| `tessl__pubmed-search` | Biomedical literature only. |
+
+### Stage 2 — Triage
+
+Create `references/{slug}.md`, update `REVIEWED.md` and `REFERENCE_INDEX.md`.
+
+| Skill | Use when |
+|---|---|
+| `tessl__triage-paper` | Source is an arxiv ID, DOI, or PDF. |
+| `tessl__triage-tool` | Source is a GitHub URL, npm package, PyPI package, or CLI tool. |
+
+All triage-stage claims must be marked `(as reported)`.
+
+### Stage 3 — Full text retrieval
+
+Run before Stage 4 when the paper is paywalled or when structured data extraction is needed.
+
+| Skill | Use when |
+|---|---|
+| `tessl__sci-hub-search` | Paper is behind a paywall; retrieves PDF by DOI or title. |
+| `tessl__sci-data-extractor` | PDF contains tables, benchmark charts, or kinetics data to extract into structured form. |
+
+### Stage 4 — Analysis
+
+See [Promoting a reference to ANALYSIS](#promoting-a-reference-to-analysis) for the full checklist.
+
+| Skill | Use when |
+|---|---|
+| `tessl__reproduce-benchmark` | A benchmark harness exists; runs it and writes `benchmarks/sources/{slug}-repro.md`. |
+
+**Full pipeline:**
+
+```text
+semantic-scholar-search (or google-scholar / pubmed)
+  → triage-paper / triage-tool          (references/{slug}.md)
+      → sci-hub-search                  (download PDF if paywalled)
+          → sci-data-extractor          (extract benchmark tables)
+              → reproduce-benchmark     (verify claims)
+                  → promote to ANALYSIS
+```
+
+Most references stop at Stage 2. Only promote to Stage 4 when the criteria in [Promoting a reference to ANALYSIS](#promoting-a-reference-to-analysis) are met.
 
 ---
 
@@ -57,9 +108,11 @@ Do not promote solely because triage is complete — most references should rema
 ### Workflow
 
 1. **Vendor the source.** Add the repo as a git submodule into `tools/<slug>/` pinned to the commit examined:
-   ```
+
+   ```sh
    git submodule add <repo-url> tools/<slug>
    ```
+
    Record the pinned commit in the reference frontmatter (`local_clone: ../tools/<slug>`). For large or peripheral repos, link-only is acceptable — note the decision in the reference file.
 
 2. **Read the source.** Focus on: the critical path from agent call to token-reduced output, data structures used to represent context, and any benchmark harness (`benchmarks/`, `eval/`, `tests/`).
