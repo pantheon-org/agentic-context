@@ -19,16 +19,16 @@ See `AGENTS.md` for the full triage workflow.
 | 2026-04-09 | yen-helmet | paper | pending | Application-centric long-context benchmark; 7 categories, 128K tokens, 59 LCLMs; NIAH does not predict downstream perf |
 | 2026-04-09 | zhang-recursive-lm | paper | pending | Inference paradigm: LLM recursively calls itself over long-input snippets; 100× context window; RLM-Qwen3-8B +28.3% over base |
 | 2026-04-09 | jiang-llmlingua | paper | pending | Coarse-to-fine prompt compression; up to 20× reduction; budget controller + iterative token removal + instruction tuning; EMNLP 2023 |
-| 2026-04-09 | tobi-qmd | tool | pending | Node.js on-device hybrid search (BM25/vec/HyDE) for markdown; MCP server with lex/vec/hyde query types + RRF reranking; Claude Code plugin; 20.3k stars; MIT |
-| 2026-04-08 | juliusbrussee-caveman | tool | pending | Claude Code skill that forces caveman-speak output; claims 65% output-token and 45% input-token reduction via companion compress sub-tool |
-| 2026-04-08 | choihyunsus-n2-arachne | tool | pending | MCP server that assembles code context (tree/deps/semantic) into a token-budgeted payload; hybrid BM25 + vector search with dependency graph traversal |
+| 2026-04-10 | tobi-qmd | tool | analysis | Node.js hybrid search (BM25/vec/HyDE) for markdown; 8-step query pipeline verified from source; full benchmark harness exists, no published results; custom 1.7B query expansion model, no training artifacts; 20.3k stars; MIT |
+| 2026-04-10 | juliusbrussee-caveman | tool | analysis | Claude Code skill enforcing caveman-speak output + compress sub-tool; ~75% output-token / ~45% input-token reduction (updated from 65% triage); offline eval snapshot committed and reproducible |
+| 2026-04-10 | choihyunsus-n2-arachne | tool | analysis | MCP server assembling token-budgeted context payloads; fixed % allocations (10/30/40/20); chars/3.5 heuristic tokenizer; no public benchmark harness; non-commercial-only license |
 | 2026-04-09 | deusdata-codebase-memory-mcp | tool | analysis | Code intelligence MCP server; indexes codebase into SQLite knowledge graph; 66 languages; claims 99% fewer tokens vs file-by-file grep |
-| 2026-04-08 | jgravelle-jdocmunch-mcp | tool | pending | Token-efficient MCP server for structured doc retrieval via section-level indexing |
-| 2026-04-08 | oraios-serena | tool | pending | MCP server providing LSP-backed semantic code retrieval and editing for coding agents |
+| 2026-04-10 | jgravelle-jdocmunch-mcp | tool | analysis | O(1) byte-offset section retrieval verified; savings accounting flaw (counts all sections, not returned); opt-out telemetry; v1.7.1; non-commercial dual license ($79–$1,999 tiers) |
+| 2026-04-10 | oraios-serena | tool | analysis | LSP-backed symbol retrieval; ~30 tools across two backends; novel progressive fallback on oversized results; 55 LSP language servers; no benchmark harness |
 | 2026-04-09 | context-mode | tool | analysis | MCP plugin that sandboxes tool output into subprocesses; claims 98% token reduction and session continuity via SQLite/FTS5 |
-| 2026-04-08 | jgravelle-jcodemunch-mcp | tool | pending | MCP server for token-efficient code exploration via tree-sitter AST parsing; claims 95% token reduction on code-reading tasks |
-| 2026-04-08 | rtk | tool | pending | CLI proxy; filters tool output noise, 60-90% token reduction on dev commands |
-| 2026-04-08 | giancarloerra-socraticode | tool | pending | MCP server for codebase intelligence: hybrid semantic+BM25 search, polyglot dependency graphs, zero-config local-first; claims 61.5% token reduction |
+| 2026-04-10 | jgravelle-jcodemunch-mcp | tool | analysis | Tree-sitter AST + SQLite WAL; 95% token reduction on 3 small repos (range 79.7–99.8%); runnable benchmark harness; non-OSI license; optional AI summarization sends code to external APIs |
+| 2026-04-10 | rtk | tool | analysis | Claude Code hook-based CLI proxy; two-track filter pipeline (69 Rust handlers + 58 TOML filters); chars/4 heuristic; runnable benchmark with 80% CI gate; v0.35.0; Apache-2.0 |
+| 2026-04-10 | giancarloerra-socraticode | tool | analysis | Qdrant-backed hybrid search (RRF via Qdrant platform feature); AST-aware chunking; 61.5% is bytes not tokens, single live session, no harness; Docker required (not local SQLite as triaged); MIT |
 
 ---
 
