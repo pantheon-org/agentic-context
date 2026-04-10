@@ -4,6 +4,33 @@ This repo collects, triages, and analyzes tools and papers related to context ma
 
 ---
 
+## Pipeline overview
+
+```mermaid
+flowchart TD
+    A([Found a tool or paper]) --> B[Add to PUNCHLIST.md]
+    B --> C["Triage\ntriage-tool / triage-paper"]
+    C --> D["references/slug.md created\nREVIEWED.md: pending"]
+    D --> E{Meets promotion\ncriteria?}
+    E -->|No — most stop here| F([Stays at pending])
+    E -->|Yes| G["1 · Vendor source\ngit submodule add"]
+    G --> H["2 · Read source code\nfocus on token-reduction path"]
+    H --> I{Is this\na paper?}
+    I -->|Yes — paywalled| J["sci-hub-search\nDownload PDF + extract tables"]
+    J --> K
+    I -->|No — public tool repo| K["3 · Check benchmark harness"]
+    K -->|No harness| L["Note: no harness\nall claims stay as-reported"]
+    K -->|Harness exists| M["Write repro guide\nbenchmarks/sources/slug-repro.md"]
+    M -->|Cannot run it| N["Guide only\nas reported"]
+    M -->|Can run it| O["Run harness\nrecord outcome + environment"]
+    L --> P["4 · Write ANALYSIS-slug.md"]
+    N --> P
+    O --> P
+    P --> Q["Consolidation pass\nANALYSIS.md matrix · REVIEWED.md → analysis"]
+```
+
+---
+
 ## Before you start
 
 - Read `ANALYSIS.md` — the comparison matrix tells you what's already been analyzed.
