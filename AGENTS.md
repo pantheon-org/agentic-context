@@ -39,7 +39,7 @@ All triage-stage claims must be marked `(as reported)`.
 
 ### Stage 3 — Full text retrieval
 
-Run before Stage 4 when the paper is paywalled or when structured data extraction is needed.
+**Papers only.** Tool repos are public GitHub repos — fetch source directly in Stage 4. Skip Stage 3 entirely for tool analyses.
 
 | Skill | Use when |
 |---|---|
@@ -53,6 +53,8 @@ See [Promoting a reference to ANALYSIS](#promoting-a-reference-to-analysis) for 
 | Skill | Use when |
 |---|---|
 | `tessl__reproduce-benchmark` | A benchmark harness exists; runs it and writes `benchmarks/sources/{slug}-repro.md`. |
+
+**When running multiple Stage 4 analyses in parallel:** each agent writes only `analysis/ANALYSIS-{slug}.md` and `benchmarks/sources/{slug}-repro.md`. Do not have parallel agents modify `REVIEWED.md` or `ANALYSIS.md` — update those in a single consolidation pass after all agents complete.
 
 **Full pipeline:**
 
@@ -113,7 +115,7 @@ Do not promote solely because triage is complete — most references should rema
    git submodule add <repo-url> tools/<slug>
    ```
 
-   Record the pinned commit in the reference frontmatter (`local_clone: ../tools/<slug>`). For large or peripheral repos, link-only is acceptable — note the decision in the reference file.
+   Record the pinned commit in the reference frontmatter (`local_clone: ../tools/<slug>`). For large or peripheral repos, link-only is acceptable — but note that a link-only analysis relies on public documentation rather than direct source inspection, and all claims must be marked `(as reported)` even if they look verified.
 
 2. **Read the source.** Focus on: the critical path from agent call to token-reduced output, data structures used to represent context, and any benchmark harness (`benchmarks/`, `eval/`, `tests/`).
 
@@ -131,6 +133,12 @@ Do not promote solely because triage is complete — most references should rema
 - **Partially verified** — the harness ran but on a different dataset or model than the paper/README used.
 - **Attempted — inconclusive** — the harness exists but produced errors, missing dependencies, or results that diverge significantly.
 - **As reported** — no reproduction attempted; use this for all triage-stage claims.
+
+### Repro guide vs repro results
+
+A `benchmarks/sources/{slug}-repro.md` file that describes the harness, its methodology, and instructions for running it is a **repro guide**. It is not a reproduction. Actual **repro results** require executing the harness and recording the outcome.
+
+Most analyses in this repo currently contain repro guides only. Do not conflate a repro guide with a reproduction. A guide always stays `(as reported)` until the harness is actually run.
 
 ---
 
