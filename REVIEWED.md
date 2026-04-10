@@ -10,6 +10,10 @@ See `AGENTS.md` for the full triage workflow.
 
 | Date | Name | Type | Disposition | Notes |
 |---|---|---|---|---|
+| 2026-04-10 | colbymchenry-codegraph | tool | analysis | Node.js/WASM MCP server; single codegraph_explore tool; created 2026-01-18; 94% fewer tool calls (own eval runner); README copies CRG's diagrams and benchmark table — treat with caution; 412 stars; MIT |
+| 2026-04-10 | tirth8205-code-review-graph | tool | analysis | Python MCP server; 22 tools; blast-radius, community detection, wiki generation; launched 2026-02-26; independent of codegraph; 8.2× token reduction on reviews (own benchmarks); 7,624 stars; MIT |
+| 2026-04-10 | lum1104-understand-anything | tool | analysis | Multi-agent pipeline building structural + domain knowledge graph dashboard; developer comprehension focus, no token reduction claims; 8,081 stars; MIT |
+| 2026-04-10 | danjdewhurst-git-semantic-bun | tool | analysis | CLI tool for semantic vector search over git commit history; Bun/TypeScript; no MCP server; borderline scope; 3 stars; MIT |
 | 2026-04-09 | bai-longbench-v2 | paper | pending | Harder long-context benchmark; 503 MCQs, 8K–2M words, human baseline 53.7%; best model 50.1%, o1-preview 57.7%; ACL 2025 |
 | 2026-04-09 | bai-longbench | paper | pending | First bilingual multitask long-context benchmark; 21 datasets, 6 categories, avg 6.7K EN / 13.4K ZH tokens; ACL 2024 |
 | 2026-04-09 | yen-helmet | paper | pending | Application-centric long-context benchmark; 7 categories, 128K tokens, 59 LCLMs; NIAH does not predict downstream perf |

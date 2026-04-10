@@ -18,6 +18,10 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[-]` skipped (see R
 - [x] SocratiCode (giancarloerra/SocratiCode) — codebase intelligence MCP; hybrid semantic search + dependency graphs; claims 61% fewer tokens
 - [x] jdocmunch-mcp (jgravelle/jdocmunch-mcp) — token-efficient MCP for doc retrieval via structured section indexing
 - [x] n2-arachne (choihyunsus/n2-arachne) — assembles code context (tree/deps/semantic) to fit context windows without noise
+- [x] colbymchenry/codegraph — Node.js MCP server; Tree-sitter/SQLite knowledge graph; reports 94% fewer tool calls for Explore agent
+- [x] tirth8205/code-review-graph — Python MCP server; 22 tools; blast-radius + community detection; reports 8.2× token reduction; 7.6k stars
+- [x] Lum1104/Understand-Anything — multi-agent pipeline → structural + domain graph dashboard; developer comprehension focus; 8k stars
+- [x] danjdewhurst/git-semantic-bun — CLI; semantic vector search over git history; no MCP; borderline scope
 
 ## Papers
 

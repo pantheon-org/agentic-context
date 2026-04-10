@@ -21,6 +21,8 @@ For full content, open the linked file. For papers, see `references/papers/` for
 | [jgravelle-jcodemunch-mcp](jgravelle-jcodemunch-mcp.md) | jgravelle | MCP server: tree-sitter AST symbol extraction, SQLite-backed local index, byte-offset retrieval; reports 95% token reduction on code-reading tasks (dual-use license) |
 | [jgravelle-jdocmunch-mcp](jgravelle-jdocmunch-mcp.md) | jgravelle | MCP server: structured section-level doc indexing with byte-offset retrieval; 13 MCP tools; reports 97–98% token reduction on doc-reading tasks (dual-use license) |
 | [deusdata-codebase-memory-mcp](deusdata-codebase-memory-mcp.md) | DeusData | MCP server: persistent SQLite knowledge graph via tree-sitter AST, 66 languages, 14 tools, single static C binary; reports 99.2% token reduction vs file-by-file grep (MIT) |
+| [colbymchenry-codegraph](colbymchenry-codegraph.md) | colbymchenry | Node.js MCP server: Tree-sitter AST → SQLite knowledge graph; blast-radius + call-graph traversal reduces Explore agent to single `codegraph_explore` call; reports 94% fewer tool calls (MIT) |
+| [tirth8205-code-review-graph](tirth8205-code-review-graph.md) | tirth8205 | Python MCP server: 22 tools, blast-radius analysis, community detection, wiki generation, multi-repo registry; reports 8.2× average token reduction on reviews; 7,624 stars (MIT) |
 
 ---
 
@@ -53,6 +55,8 @@ For full content, open the linked file. For papers, see `references/papers/` for
 | [rtk](rtk.md) | rtk-ai | CLI proxy: transparent hook-based output compression for 100+ dev commands; single Rust binary, <10 ms overhead, no LLM involvement (Apache-2.0) |
 | [giancarloerra-socraticode](giancarloerra-socraticode.md) | giancarloerra | MCP server: hybrid semantic+BM25 codebase search, AST-aware chunking, polyglot dependency graphs, zero-config local-first (AGPL-3.0) |
 | [tobi-qmd](tobi-qmd.md) | tobi | Node.js MCP server: BM25/vec/HyDE hybrid search over local markdown, lex/vec/hyde query types + RRF reranking, Claude Code plugin, SQLite storage; 20.3k stars (MIT) |
+| [lum1104-understand-anything](lum1104-understand-anything.md) | Lum1104 | Claude Code skill: 5-agent pipeline builds structural + domain knowledge graph; interactive dashboard; guided tours, diff impact analysis, persona-adaptive UI; 8,081 stars (MIT) |
+| [danjdewhurst-git-semantic-bun](danjdewhurst-git-semantic-bun.md) | danjdewhurst | CLI tool: semantic vector search over git commit history; Bun/TypeScript; no MCP server; borderline scope — retrieval primitive rather than context management (MIT) |
 
 ---
 

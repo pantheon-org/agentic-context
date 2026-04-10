@@ -1,11 +1,17 @@
-# ANALYSIS: context-mode
+---
+title: "Analysis — context-mode"
+date: 2026-04-09
+type: analysis
+tool:
+  name: "context-mode"
+  repo: "https://github.com/mksglu/context-mode"
+  version: "v1.0.75 (601aaf1)"
+  language: "TypeScript"
+  license: "MIT"
+source: ["references/web/context-mode.md", "tools/context-mode/"]
+---
 
-**Slug**: context-mode
-**Source**: `tools/context-mode/` (pinned: `601aaf1`)
-**Reference**: `references/web/context-mode.md`
-**Analyst**: thoroc
-**Date**: 2026-04-09
-**Status**: analysis
+# ANALYSIS: context-mode
 
 ---
 

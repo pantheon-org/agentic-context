@@ -1,11 +1,17 @@
-# ANALYSIS: codebase-memory-mcp
+---
+title: "Analysis — codebase-memory-mcp"
+date: 2026-04-09
+type: analysis
+tool:
+  name: "codebase-memory-mcp"
+  repo: "https://github.com/DeusData/codebase-memory-mcp"
+  version: "v2.6.0 (d33b9e4)"
+  language: "C"
+  license: "MIT"
+source: ["references/deusdata-codebase-memory-mcp.md", "tools/deusdata-codebase-memory-mcp/"]
+---
 
-**Slug**: deusdata-codebase-memory-mcp
-**Source**: `tools/deusdata-codebase-memory-mcp/` (pinned: `d33b9e4`)
-**Reference**: `references/deusdata-codebase-memory-mcp.md`
-**Analyst**: thoroc
-**Date**: 2026-04-09
-**Status**: analysis
+# ANALYSIS: codebase-memory-mcp
 
 ---
 
