@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "providers": [
+    "claude-code",
+    "gemini-cli",
+    "openai-codex",
+    "opencode"
+  ],
+  "servers": {
+    "semantic-scholar": {
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "semantic-scholar-fastmcp"
+      ]
+    },
+    "google-scholar": {
+      "transport": "stdio",
+      "command": "uvx",
+      "args": [
+        "google_scholar_mcp_server"
+      ]
+    }
+  }
+}
