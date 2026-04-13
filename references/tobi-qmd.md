@@ -5,6 +5,7 @@ date: 2026-04-09
 type: reference
 tags: [tool, cli, mcp-server, node]
 source: "https://github.com/tobi/qmd"
+local_clone: ../tools/tobi-qmd
 version: "v2.1.0 (2026-04-05)"
 context: "On-device hybrid search engine for markdown knowledge bases; MCP server with lex/vec/hyde query modes; directly relevant to agent memory retrieval and session-level context tooling."
 ---

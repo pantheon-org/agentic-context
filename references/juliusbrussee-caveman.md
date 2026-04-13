@@ -5,6 +5,7 @@ date: 2026-04-08
 type: reference
 tags: [tool, cli, skill]
 source: "https://github.com/JuliusBrussee/caveman"
+local_clone: ../tools/juliusbrussee-caveman
 version: "commit 9ee0e35 (2026-04-08)"
 context: "Output-token compression via prompt-level style forcing; borderline for context-management research but directly relevant to token-budget strategy."
 ---

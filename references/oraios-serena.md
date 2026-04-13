@@ -5,6 +5,7 @@ date: 2026-04-08
 type: reference
 tags: [tool, mcp-server, library, cli]
 source: "https://github.com/oraios/serena"
+local_clone: ../tools/oraios-serena
 version: "v1.0.0"
 context: "MCP-native IDE-level code retrieval and editing toolkit; directly relevant to agent tooling and context-efficient code operations."
 ---

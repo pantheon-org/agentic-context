@@ -7,3 +7,39 @@
 [submodule "tools/graphify"]
 	path = tools/graphify
 	url = https://github.com/safishamsi/graphify
+[submodule "tools/choihyunsus-n2-arachne"]
+	path = tools/choihyunsus-n2-arachne
+	url = https://github.com/choihyunsus/n2-arachne
+[submodule "tools/colbymchenry-codegraph"]
+	path = tools/colbymchenry-codegraph
+	url = https://github.com/colbymchenry/codegraph
+[submodule "tools/danjdewhurst-git-semantic-bun"]
+	path = tools/danjdewhurst-git-semantic-bun
+	url = https://github.com/danjdewhurst/git-semantic-bun
+[submodule "tools/giancarloerra-socraticode"]
+	path = tools/giancarloerra-socraticode
+	url = https://github.com/giancarloerra/SocratiCode
+[submodule "tools/jgravelle-jcodemunch-mcp"]
+	path = tools/jgravelle-jcodemunch-mcp
+	url = https://github.com/jgravelle/jcodemunch-mcp
+[submodule "tools/jgravelle-jdocmunch-mcp"]
+	path = tools/jgravelle-jdocmunch-mcp
+	url = https://github.com/jgravelle/jdocmunch-mcp
+[submodule "tools/juliusbrussee-caveman"]
+	path = tools/juliusbrussee-caveman
+	url = https://github.com/JuliusBrussee/caveman
+[submodule "tools/lum1104-understand-anything"]
+	path = tools/lum1104-understand-anything
+	url = https://github.com/Lum1104/Understand-Anything
+[submodule "tools/oraios-serena"]
+	path = tools/oraios-serena
+	url = https://github.com/oraios/serena
+[submodule "tools/rtk"]
+	path = tools/rtk
+	url = https://github.com/rtk-ai/rtk
+[submodule "tools/tirth8205-code-review-graph"]
+	path = tools/tirth8205-code-review-graph
+	url = https://github.com/tirth8205/code-review-graph
+[submodule "tools/tobi-qmd"]
+	path = tools/tobi-qmd
+	url = https://github.com/tobi/qmd

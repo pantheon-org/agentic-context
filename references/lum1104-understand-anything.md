@@ -5,6 +5,7 @@ date: 2026-04-10
 type: reference
 tags: [tool, mcp-server, codebase-intelligence, visualization]
 source: "https://github.com/Lum1104/Understand-Anything"
+local_clone: ../tools/lum1104-understand-anything
 version: "78b72724 (2026-04-10)"
 context: "Relevant — codebase intelligence tool with multi-agent analysis pipeline and interactive knowledge graph dashboard; focus is developer understanding rather than token reduction."
 ---

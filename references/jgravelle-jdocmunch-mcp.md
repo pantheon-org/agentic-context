@@ -5,6 +5,7 @@ date: 2026-04-08
 type: reference
 tags: [tool, mcp, retrieval, token-efficiency, context-management]
 source: "https://github.com/jgravelle/jdocmunch-mcp"
+local_clone: ../tools/jgravelle-jdocmunch-mcp
 version: "v1.5.3"
 context: "MCP server for structured doc retrieval; directly relevant to token budgeting and context window hygiene in agent workflows"
 ---
@@ -31,7 +32,7 @@ Six-stage pipeline per indexed documentation set:
 
 1. **Discovery** — GitHub API walk or local directory traversal.
 2. **Security filtering** — path traversal protection, `.gitignore`-pattern exclusion via `pathspec`, binary detection, secret exclusion.
-3. **Parsing** — format-aware section splitting dispatched by `parse_file()` in `src/jdocmunch_mcp/parser/__init__.py`; 12 specialised parsers covering all supported formats.
+3. **Parsing** — format-aware section splitting dispatched by `parse_file()` in the parser module (`src/jdocmunch_mcp/parser/`); 12 specialised parsers covering all supported formats.
 4. **Hierarchy wiring** — `parent_id` / `children` relationships established in `parser/hierarchy.py`.
 5. **Summarization** — heading text sent to an AI provider (Claude Haiku by default, Gemini Flash or OpenAI optional) for batch summaries; falls back to heading text if no API key supplied.
 6. **Storage** — `DocStore` (JSON index + raw files) written to `~/.doc-index/<slug>/`; byte-range reads enable O(1) section retrieval without re-parsing.

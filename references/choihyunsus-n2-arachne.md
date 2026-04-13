@@ -5,6 +5,7 @@ date: 2026-04-08
 type: reference
 tags: [tool, library, mcp-server, cli]
 source: "https://github.com/choihyunsus/n2-arachne"
+local_clone: ../tools/choihyunsus-n2-arachne
 version: "v4.0.3"
 context: "Directly relevant to context assembly and token budgeting — assembles code context to fit within LLM context windows using hybrid search and dependency traversal."
 ---

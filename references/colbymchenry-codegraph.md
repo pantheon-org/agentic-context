@@ -5,6 +5,7 @@ date: 2026-04-10
 type: reference
 tags: [tool, mcp-server, codebase-intelligence]
 source: "https://github.com/colbymchenry/codegraph"
+local_clone: ../tools/colbymchenry-codegraph
 version: "19532a81 (2026-04-08)"
 context: "Directly relevant — pre-indexes a codebase into a knowledge graph to reduce Claude Code Explore agent tool calls and tokens."
 ---

@@ -5,6 +5,7 @@ date: 2026-04-08
 type: reference
 tags: [tool, mcp-server, cli, library]
 source: "https://github.com/jgravelle/jcodemunch-mcp"
+local_clone: ../tools/jgravelle-jcodemunch-mcp
 version: "v1.24.1"
 context: "Token-efficient code retrieval for AI agents; directly relevant to context window management and token budgeting research"
 ---
@@ -32,10 +33,11 @@ Index-once, query-cheap architecture built around three layers:
 1. **Parsing layer** — tree-sitter grammars per language; extracts symbol type, name, docstring, decorator, and byte-start/end offsets. Falls back to signature when no docstring is present.
 2. **Storage layer** — SQLite (WAL mode) per indexed repository, holding `meta`, `symbols`, `files`, `imports`, `raw_cache`, and `content_blob` tables. Cached raw source files are written alongside the DB to support exact byte-offset retrieval. Index path defaults to `~/.code-index/`; configurable via `CODE_INDEX_PATH`.
 3. **Retrieval layer** — MCP tool surface. All responses include an `_meta` envelope. Key retrieval operations:
-   - `get_symbol_source` — exact code span by symbol ID and byte offset
-   - `get_context_bundle` — scoped context around a symbol
-   - `get_ranked_context` — query-driven, token-budgeted assembly using BM25 + PageRank
-   - `get_file_outline` / `get_repo_outline` — structural navigation without reading file bodies
+
+  - `get_symbol_source` — exact code span by symbol ID and byte offset
+  - `get_context_bundle` — scoped context around a symbol
+  - `get_ranked_context` — query-driven, token-budgeted assembly using BM25 + PageRank
+  - `get_file_outline` / `get_repo_outline` — structural navigation without reading file bodies
 
 Summarization pipeline (docstring → AI batch → signature fallback) enriches search relevance but is not the retrieval backbone.
 
@@ -91,6 +93,7 @@ Benchmark run against 3 open-source repos (expressjs/express, fastapi/fastapi, g
 Per-query range: 79.7% – 99.8% reduction (as reported, README; reproducible via `python benchmarks/harness/run_benchmark.py`).
 
 External mentions:
+
 - Artur Skowroński (VirtusLab): "roughly 80% fewer tokens, or 5× more efficient" (as reported, README).
 - Julian Horsey (Geeky Gadgets): "3,850 tokens [vs baseline]" (as reported, README).
 

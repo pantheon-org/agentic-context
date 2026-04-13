@@ -5,6 +5,7 @@ date: 2026-04-10
 type: reference
 tags: [tool, mcp-server, codebase-intelligence]
 source: "https://github.com/tirth8205/code-review-graph"
+local_clone: ../tools/tirth8205-code-review-graph
 version: "36777165 (2026-04-08)"
 context: "Directly relevant — builds a persistent codebase knowledge graph to reduce tokens on code review and exploration tasks."
 ---
