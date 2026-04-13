@@ -6,11 +6,11 @@ hero:
   tagline: What goes into the active context window, how it gets there, and how it gets managed under pressure.
   actions:
     - text: Cross-tool synthesis
-      link: /synthesis/
+      link: /agentic-context/synthesis/
       icon: right-arrow
       variant: primary
     - text: Triage log
-      link: /triage-log/
+      link: /agentic-context/triage-log/
       icon: open-book
     - text: GitHub
       link: https://github.com/pantheon-org/agentic-context
@@ -28,8 +28,8 @@ hero:
 
 ## Sections
 
-- **[Synthesis](/synthesis/)** — cross-tool comparison matrix and key themes
-- **[Triage Log](/triage-log/)** — all examined tools and papers with disposition
-- **[Analyses](/analysis/context-mode/)** — per-tool deep dives with source-verified claims
-- **[Benchmarks](/benchmarks/context-mode/)** — reproduction guides and verified figures
-- **[References](/references/tobi-qmd/)** — structured summaries of every source
+- **[Synthesis](/agentic-context/synthesis/)** — cross-tool comparison matrix and key themes
+- **[Triage Log](/agentic-context/triage-log/)** — all examined tools and papers with disposition
+- **[Analyses](/agentic-context/analysis/context-mode/)** — per-tool deep dives with source-verified claims
+- **[Benchmarks](/agentic-context/benchmarks/context-mode/)** — reproduction guides and verified figures
+- **[References](/agentic-context/references/tobi-qmd/)** — structured summaries of every source
