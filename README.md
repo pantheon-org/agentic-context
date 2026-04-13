@@ -2,6 +2,8 @@
 
 Research collection on **context management** for LLM-based agentic systems — tooling, techniques, and papers covering what goes into the active context window, how it gets there, and how it gets managed under pressure.
 
+**Published site**: https://pantheon-org.github.io/agentic-context
+
 ## Scope
 
 This repo focuses on the **active context window layer**: what is injected, compressed, truncated, summarized, or routed at inference time. It is adjacent to but distinct from:
@@ -38,15 +40,16 @@ Context management intersects both: retrieval feeds the context window; a poison
 | `benchmarks/` | Benchmark sources and audit notes |
 | `datasets/` | Paper matrices (CSV/XLSX) |
 | `scripts/` | Automation: PDF extraction, sync, BibTeX gen |
+| `site/` | Astro 6 + Starlight static site (publishes to GitHub Pages) |
 
 ## Tools under investigation
 
-_Populated as analyses are added._
+*Populated as analyses are added.*
 
 ## Papers under investigation
 
-_Populated as analyses are added._
+*Populated as analyses are added.*
 
 ## Key themes
 
-_Populated as analysis matures._
+*Populated as analysis matures.*

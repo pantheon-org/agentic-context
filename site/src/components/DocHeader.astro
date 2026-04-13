@@ -1,0 +1,25 @@
+---
+// Starlight PageTitle override (Starlight ≥ 0.33).
+// Route data moved from Astro.props to Astro.locals.starlightRoute.
+// Renders the H1 title and, for analysis pages, a MetaCard above the prose.
+import MetaCard from './MetaCard.astro';
+
+const { entry } = Astro.locals.starlightRoute;
+// Cast to access extended frontmatter fields beyond Starlight's base schema.
+const data = entry.data as Record<string, unknown>;
+const tool = data.tool as Parameters<typeof MetaCard>[0]['tool'] | undefined;
+---
+
+<h1 id="_top" data-page-title>{data.title as string}</h1>
+
+{
+  tool && (
+    <MetaCard
+      tool={tool}
+      reviewed={(data.reviewed as boolean | undefined) ?? false}
+      sourceReviewed={(data.source_reviewed as boolean | undefined) ?? false}
+      date={data.date as Date | undefined}
+      updated={data.updated as Date | null | undefined}
+    />
+  )
+}
