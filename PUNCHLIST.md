@@ -22,8 +22,6 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[-]` skipped (see R
 - [x] tirth8205/code-review-graph — Python MCP server; 22 tools; blast-radius + community detection; reports 8.2× token reduction; 7.6k stars
 - [x] Lum1104/Understand-Anything — multi-agent pipeline → structural + domain graph dashboard; developer comprehension focus; 8k stars
 - [x] danjdewhurst/git-semantic-bun — CLI; semantic vector search over git history; no MCP; borderline scope
-- [ ] <https://github.com/colbymchenry/codegraph>
-- [ ] <https://github.com/tirth8205/code-review-graph>
 - [ ] <https://graphify.net/>
 
 ## Papers
