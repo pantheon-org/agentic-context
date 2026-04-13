@@ -12,8 +12,8 @@ tool:
   license: "Dual: Apache-2.0 (non-commercial) / Commercial (contact author)"
 source: "references/choihyunsus-n2-arachne.md"
 local_clone: "tools/choihyunsus-n2-arachne/"
-reviewed: false
-reviewed_date: null
+reviewed: true
+reviewed_date: 2026-04-13
 source_reviewed: true
 ---
 

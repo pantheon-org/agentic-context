@@ -11,9 +11,9 @@ tool:
   license: "Apache-2.0"
 source: "references/rtk-ai-rtk.md"
 local_clone: null
-reviewed: false
-reviewed_date: null
-source_reviewed: false
+reviewed: true
+reviewed_date: 2026-04-13
+source_reviewed: true
 updated: null
 ---
 

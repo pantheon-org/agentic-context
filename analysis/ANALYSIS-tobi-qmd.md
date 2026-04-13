@@ -12,9 +12,9 @@ tool:
   license: "MIT"
 source: "references/tobi-qmd.md"
 local_clone: "tools/tobi-qmd/"
-reviewed: false
-reviewed_date: null
-source_reviewed: false
+reviewed: true
+reviewed_date: 2026-04-13
+source_reviewed: true
 ---
 
 # ANALYSIS: qmd

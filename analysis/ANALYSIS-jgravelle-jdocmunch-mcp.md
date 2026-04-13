@@ -13,7 +13,7 @@ source: "references/jgravelle-jdocmunch-mcp.md"
 local_clone: null
 reviewed: true
 reviewed_date: 2026-04-13
-source_reviewed: false
+source_reviewed: true
 updated: null
 ---
 

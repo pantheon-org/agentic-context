@@ -12,8 +12,8 @@ tool:
   license: "MIT"
 source: "references/colbymchenry-codegraph.md"
 local_clone: null
-reviewed: false
-reviewed_date: null
+reviewed: true
+reviewed_date: 2026-04-13
 source_reviewed: true
 ---
 

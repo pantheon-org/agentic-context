@@ -11,9 +11,9 @@ tool:
   license: "MIT"
 source: "references/tirth8205-code-review-graph.md"
 local_clone: null
-reviewed: false
-reviewed_date: null
-source_reviewed: false
+reviewed: true
+reviewed_date: 2026-04-13
+source_reviewed: true
 updated: null
 ---
 

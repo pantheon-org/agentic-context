@@ -11,8 +11,8 @@ tool:
   license: "AGPL-3.0"
 source: "references/giancarloerra-socraticode.md"
 local_clone: "tools/giancarloerra-socraticode/"
-reviewed: false
-reviewed_date: null
+reviewed: true
+reviewed_date: 2026-04-13
 source_reviewed: true
 updated: null
 ---
