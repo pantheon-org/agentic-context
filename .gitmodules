@@ -4,3 +4,6 @@
 [submodule "tools/deusdata-codebase-memory-mcp"]
 	path = tools/deusdata-codebase-memory-mcp
 	url = https://github.com/DeusData/codebase-memory-mcp
+[submodule "tools/graphify"]
+	path = tools/graphify
+	url = https://github.com/safishamsi/graphify
