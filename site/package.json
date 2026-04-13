@@ -1,0 +1,14 @@
+{
+  "name": "agentic-context-site",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "node scripts/copy-content.mjs && astro dev",
+    "build": "node scripts/copy-content.mjs && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.38.0",
+    "astro": "^6.0.0"
+  }
+}

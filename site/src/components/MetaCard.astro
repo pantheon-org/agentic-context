@@ -1,0 +1,91 @@
+---
+interface Tool {
+  name: string;
+  repo: string;
+  version?: string;
+  language?: string;
+  license?: string;
+}
+
+interface Props {
+  tool: Tool;
+  reviewed?: boolean;
+  sourceReviewed?: boolean;
+  date?: Date;
+  updated?: Date | null;
+}
+
+const { tool, reviewed, sourceReviewed, date, updated } = Astro.props;
+
+function fmt(d: Date | undefined | null): string {
+  if (!d) return '';
+  return d instanceof Date ? d.toISOString().split('T')[0] : String(d);
+}
+---
+
+<aside class="meta-card not-content">
+  <dl>
+    <dt>Tool</dt>
+    <dd><a href={tool.repo} target="_blank" rel="noopener">{tool.name}</a></dd>
+    {tool.version && <><dt>Version</dt><dd>{tool.version}</dd></>}
+    {tool.language && <><dt>Language</dt><dd>{tool.language}</dd></>}
+    {tool.license && <><dt>License</dt><dd>{tool.license}</dd></>}
+    {date && <><dt>Analyzed</dt><dd>{fmt(date)}</dd></>}
+    <dt>Reviewed</dt>
+    <dd><span class:list={['badge', reviewed ? 'badge-yes' : 'badge-no']}>{reviewed ? 'yes' : 'no'}</span></dd>
+    <dt>Source-reviewed</dt>
+    <dd><span class:list={['badge', sourceReviewed ? 'badge-yes' : 'badge-no']}>{sourceReviewed ? 'yes' : 'no'}</span></dd>
+    {updated && <><dt>Updated</dt><dd>{fmt(updated)}</dd></>}
+  </dl>
+</aside>
+
+<style>
+  .meta-card {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 0.875rem 1.25rem;
+    margin: 1rem 0 1.5rem;
+    background: var(--sl-color-bg-sidebar);
+  }
+  dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.3rem 1.25rem;
+    margin: 0;
+    font-size: 0.85rem;
+  }
+  dt {
+    font-weight: 600;
+    color: var(--sl-color-gray-2);
+    white-space: nowrap;
+  }
+  dd {
+    margin: 0;
+    color: var(--sl-color-white);
+    word-break: break-word;
+  }
+  a {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .badge-yes {
+    background: color-mix(in srgb, var(--sl-color-green) 15%, transparent);
+    color: var(--sl-color-green);
+  }
+  .badge-no {
+    background: color-mix(in srgb, var(--sl-color-orange) 15%, transparent);
+    color: var(--sl-color-orange);
+  }
+</style>
