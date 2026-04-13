@@ -21,3 +21,9 @@ enabled = false
 
 [rules.MD034]
 enabled = false
+
+[rules.MD032]
+enabled = false
+
+[rules.MD007]
+enabled = false
