@@ -56,6 +56,7 @@ For full content, open the linked file. For papers, see `references/papers/` for
 | [giancarloerra-socraticode](giancarloerra-socraticode.md) | giancarloerra | MCP server: hybrid semantic+BM25 codebase search, AST-aware chunking, polyglot dependency graphs, zero-config local-first (AGPL-3.0) |
 | [tobi-qmd](tobi-qmd.md) | tobi | Node.js MCP server: BM25/vec/HyDE hybrid search over local markdown, lex/vec/hyde query types + RRF reranking, Claude Code plugin, SQLite storage; 20.3k stars (MIT) |
 | [lum1104-understand-anything](lum1104-understand-anything.md) | Lum1104 | Claude Code skill: 5-agent pipeline builds structural + domain knowledge graph; interactive dashboard; guided tours, diff impact analysis, persona-adaptive UI; 8,081 stars (MIT) |
+| [graphify](graphify.md) | safishamsi | Python CLI + MCP skill: multi-modal knowledge graph (code/PDFs/images/video); Tree-sitter AST + parallel LLM extraction; NetworkX + Leiden clustering; 71.5× token reduction on mixed corpus (as reported); 3.7k+ stars (MIT) |
 | [danjdewhurst-git-semantic-bun](danjdewhurst-git-semantic-bun.md) | danjdewhurst | CLI tool: semantic vector search over git commit history; Bun/TypeScript; no MCP server; borderline scope — retrieval primitive rather than context management (MIT) |
 
 ---

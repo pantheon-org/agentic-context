@@ -22,7 +22,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[-]` skipped (see R
 - [x] tirth8205/code-review-graph — Python MCP server; 22 tools; blast-radius + community detection; reports 8.2× token reduction; 7.6k stars
 - [x] Lum1104/Understand-Anything — multi-agent pipeline → structural + domain graph dashboard; developer comprehension focus; 8k stars
 - [x] danjdewhurst/git-semantic-bun — CLI; semantic vector search over git history; no MCP; borderline scope
-- [ ] <https://graphify.net/>
+- [x] safishamsi/graphify — Python CLI + MCP skill; multi-modal knowledge graph (code/PDFs/images/video); Tree-sitter AST + Leiden clustering; reports 71.5× token reduction; 3.7k stars
 
 ## Papers
 
