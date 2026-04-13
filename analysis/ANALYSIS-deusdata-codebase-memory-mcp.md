@@ -1,4 +1,5 @@
 ---
+slug: deusdata-codebase-memory-mcp
 title: "Analysis — codebase-memory-mcp"
 date: 2026-04-09
 type: analysis
@@ -9,6 +10,11 @@ tool:
   language: "C"
   license: "MIT"
 source: ["references/deusdata-codebase-memory-mcp.md", "tools/deusdata-codebase-memory-mcp/"]
+local_clone: null
+reviewed: false
+reviewed_date: null
+source_reviewed: false
+updated: null
 ---
 
 # ANALYSIS: codebase-memory-mcp

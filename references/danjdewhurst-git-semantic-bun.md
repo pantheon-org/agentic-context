@@ -5,6 +5,7 @@ date: 2026-04-10
 type: reference
 tags: [tool, cli, semantic-search]
 source: "https://github.com/danjdewhurst/git-semantic-bun"
+local_clone: ../tools/danjdewhurst-git-semantic-bun
 version: "1743d3e9 (2026-02-26)"
 context: "Peripheral — semantic search over git history (commit messages); useful as a retrieval primitive but not a context management or token-reduction tool."
 ---

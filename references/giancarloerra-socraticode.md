@@ -5,6 +5,7 @@ date: 2026-04-08
 type: reference
 tags: [tool, mcp, codebase-intelligence, semantic-search, code-graph, context-reduction]
 source: "https://github.com/giancarloerra/SocratiCode"
+local_clone: ../tools/giancarloerra-socraticode
 version: "1.3.2"
 context: "MCP server that combines hybrid semantic search and AST-based dependency graphs to reduce tokens consumed during codebase navigation; directly relevant to context-reduction and session-level tooling."
 ---
@@ -34,6 +35,7 @@ Hybrid retrieval: dense vector embeddings (local in-process HNSW by default; opt
 ### Interface / API
 
 Exposes MCP tools:
+
 - `codebase_search` — hybrid semantic + keyword search with optional file/language filters
 - `codebase_status` — index status and chunk count
 - `codebase_graph_build` / `codebase_graph_query` / `codebase_graph_stats` / `codebase_graph_circular` / `codebase_graph_visualize` / `codebase_graph_status` / `codebase_graph_remove`

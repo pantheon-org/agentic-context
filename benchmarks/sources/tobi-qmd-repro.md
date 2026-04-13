@@ -1,7 +1,18 @@
+---
+slug: "tobi-qmd"
+title: "qmd — Benchmark Reproduction"
+source: "https://github.com/tobi/qmd"
+local_clone: "../../tools/tobi-qmd"
+harness_present: true
+harness_path: "src/bench/bench.ts"
+outcome: "repro guide (not run)"
+updated: 2026-04-13
+---
+
 # qmd — Benchmark Reproduction
 
 **Source**: `https://github.com/tobi/qmd` (v2.1.0, 2026-04-05)
-**Date**: 2026-04-10
+**Date**: 2026-04-10; source-verified 2026-04-13
 **Environment**: not run — methodology documented from source inspection
 **Outcome**: not reproduced — harness requires ~2 GB GGUF models and a pre-indexed SQLite database
 
@@ -42,12 +53,12 @@ Three test suites with explicit vitest thresholds:
 - hard queries (n=6): Hit@5 ≥ 15%
 - overall Hit@3 ≥ 40%
 
-**Vector search** — requires embedding model (~300 MB):
+**Vector search** — requires embedding model (~300 MB); skipped in CI:
 
-- easy queries: Hit@3 ≥ 80%
+- easy queries: Hit@3 ≥ 60%
 - medium queries: Hit@3 ≥ 40%
-- hard queries: Hit@5 ≥ 35%
-- overall Hit@3 ≥ 60%
+- hard queries: Hit@5 ≥ 30%
+- overall Hit@3 ≥ 50%
 
 **Hybrid RRF** — requires embedding model; skipped in CI (`describe.skipIf(!!process.env.CI)`):
 
@@ -116,6 +127,86 @@ qmd bench src/bench/fixtures/example.json --json
 
 ---
 
+## Fine-tune training harness (`finetune/`)
+
+A complete Python training pipeline for the `qmd-query-expansion-1.7B` model ships in the repo under `finetune/`. This is separate from the search benchmark harness and covers the model training side.
+
+### Structure
+
+```text
+finetune/
+├── train.py                     # SFT entrypoint (Qwen3-1.7B + LoRA)
+├── eval.py                      # Generate + score expansion outputs
+├── reward.py                    # Rule-based scoring function (single source of truth)
+├── convert_gguf.py              # GGUF conversion for deployment
+├── SCORING.md                   # Full scoring rubric
+├── configs/sft.yaml             # SFT hyperparameters
+├── data/                        # JSONL training data (~2,290 examples)
+│   ├── qmd_expansion_balanced_deduped.jsonl
+│   ├── qmd_expansion_v3_structured.jsonl
+│   └── ... (10+ source files, concatenated for training)
+├── dataset/
+│   ├── schema.py                # Pydantic TrainingExample schema
+│   ├── prepare_data.py          # Format, dedup, split train/val
+│   └── validate_schema.py       # Schema validation
+├── evals/queries.txt            # 31 test queries across 8 categories
+├── experiments/
+│   ├── grpo/                    # Experimental GRPO path
+│   └── lfm2/                    # LiquidAI LFM2-1.2B experiments
+└── jobs/                        # Self-contained HuggingFace Jobs scripts
+```
+
+### Running the fine-tune eval
+
+```sh
+cd finetune
+pip install uv
+uv run eval.py tobil/qmd-query-expansion-1.7B       # score deployed model
+uv run eval.py ./outputs/sft                         # score local SFT output
+uv run eval.py tobil/qmd-query-expansion-1.7B -v    # verbose with deduction details
+uv run eval.py tobil/qmd-query-expansion-1.7B -o scores.json
+```
+
+The `reward.py` scoring function is entirely rule-based (no LLM judge): five dimensions — Format (0–30), Diversity (0–30), HyDE (0–20), Quality (0–20), Entity preservation (−45 to +20) — normalized to 0.0–1.0. Max score is 140 (with HyDE), 120 without.
+
+### Running SFT training
+
+```sh
+cd finetune
+uv run dataset/prepare_data.py                       # create data/train/train.jsonl + val.jsonl
+uv run train.py sft --config configs/sft.yaml        # requires CUDA GPU
+# or via HuggingFace Jobs (no local GPU):
+hf jobs uv run --flavor a10g-large --secrets HF_TOKEN --timeout 2h jobs/sft.py
+```
+
+Training hyperparameters (from `configs/sft.yaml`): base model `Qwen/Qwen3-1.7B`, LoRA rank 16 alpha 32, all projection layers, ~2,290 training examples, effective batch 16, 5 epochs, lr 2e-4 cosine.
+
+### Published training results (from `finetune/README.md`)
+
+| Stage | Metric | Value |
+|---|---|---|
+| SFT | Final train loss | 0.472 |
+| SFT | Final eval loss | 0.304 |
+| SFT | Token accuracy (train) | 97.4% |
+| SFT | Token accuracy (eval) | 93.8% |
+| SFT | Eval average score (reward fn) | 92.0% |
+| SFT | Excellent-rated outputs (30/30) | 30/30 test queries |
+| Hardware | | A10G (24 GB VRAM), ~45 min, ~$1.50 |
+
+These are training metrics, not retrieval benchmark results. They measure model format compliance and query expansion quality, not end-to-end search Hit@k.
+
+### HuggingFace repositories
+
+| Repo | Purpose |
+|---|---|
+| `tobil/qmd-query-expansion-1.7B` | Final merged model (SFT) |
+| `tobil/qmd-query-expansion-1.7B-gguf` | GGUF quantized for deployment |
+| `tobil/qmd-query-expansion-1.7B-sft` | SFT adapter checkpoint |
+| `tobil/qmd-query-expansion-train` | Prepared training dataset |
+| `tobil/qmd-query-expansion-1.7B-grpo` | Experimental GRPO adapter |
+
+---
+
 ## Reported figures (from source, as reported)
 
 All figures below are vitest assertion thresholds — lower bounds, not measured values. No point estimates or mean results are published in the repository.
@@ -126,10 +217,10 @@ All figures below are vitest assertion thresholds — lower bounds, not measured
 | BM25 | medium | Hit@3 | ≥ 15% |
 | BM25 | hard | Hit@5 | ≥ 15% |
 | BM25 | overall | Hit@3 | ≥ 40% |
-| Vector | easy | Hit@3 | ≥ 80% |
+| Vector | easy | Hit@3 | ≥ 60% |
 | Vector | medium | Hit@3 | ≥ 40% |
-| Vector | hard | Hit@5 | ≥ 35% |
-| Vector | overall | Hit@3 | ≥ 60% |
+| Vector | hard | Hit@5 | ≥ 30% |
+| Vector | overall | Hit@3 | ≥ 50% |
 | Hybrid | easy | Hit@3 | ≥ 80% |
 | Hybrid | medium | Hit@3 | ≥ 50% (with vectors) |
 | Hybrid | hard | Hit@5 | ≥ 35% (with vectors) |

@@ -1,3 +1,14 @@
+---
+slug: "deusdata-codebase-memory-mcp"
+title: "codebase-memory-mcp — Benchmark Reproduction"
+source: "https://github.com/DeusData/codebase-memory-mcp"
+local_clone: "../../tools/deusdata-codebase-memory-mcp"
+harness_present: false
+harness_path: null
+outcome: "partially verified"
+updated: 2026-04-13
+---
+
 # codebase-memory-mcp — Benchmark Reproduction
 
 **Source**: `tools/deusdata-codebase-memory-mcp/` (pinned: `d33b9e4`)

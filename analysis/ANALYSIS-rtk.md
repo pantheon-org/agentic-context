@@ -1,4 +1,5 @@
 ---
+slug: rtk
 title: "Analysis — rtk"
 date: 2026-04-10
 type: analysis
@@ -8,7 +9,12 @@ tool:
   version: "v0.35.0"
   language: "Rust"
   license: "Apache-2.0"
-source: "references/rtk.md"
+source: "references/rtk-ai-rtk.md"
+local_clone: null
+reviewed: false
+reviewed_date: null
+source_reviewed: false
+updated: null
 ---
 
 # ANALYSIS: rtk
@@ -17,7 +23,50 @@ source: "references/rtk.md"
 
 ## Summary
 
-rtk is a transparent CLI proxy that intercepts Bash tool calls via a `PreToolUse` hook and rewrites them to `rtk <cmd>` before the command executes. Output is filtered through a two-track pipeline: 69 Rust-implemented handlers for first-class commands (git, cargo, test runners, linters) and a TOML-DSL engine covering 58 additional tools. The 60-90% token reduction headline is plausible for the specific commands benchmarked but relies on a `ceil(chars / 4)` character-count proxy rather than actual LLM tokenizer counts. The benchmark harness (`scripts/benchmark.sh`) is real, runnable, and ships with the repo — savings figures are measured against live command output, not curated fixtures. The architecture is genuinely different from injection-side context managers: rtk operates on output before it enters the context window, adds no LLM round-trips, and the hook intercept is transparent to both the agent and the user.
+rtk is a transparent CLI proxy that intercepts Bash tool calls via a `PreToolUse` hook and rewrites them to `rtk <cmd>` before the command executes. Output is filtered through a two-track pipeline: 69 Rust-implemented rule patterns for first-class commands (git, cargo, test runners, linters) and a TOML-DSL engine covering 58 additional tools — both counts verified from source. The 60-90% token reduction headline is plausible for the specific commands benchmarked but relies on a `ceil(chars / 4)` character-count proxy rather than actual LLM tokenizer counts — the exact formula `(text.len() as f64 / 4.0).ceil() as usize` is in `src/core/tracking.rs::estimate_tokens()`. The benchmark harness (`scripts/benchmark.sh`) is real, runnable, and ships with the repo — savings figures are measured against live command output, not curated fixtures. The architecture is genuinely different from injection-side context managers: rtk operates on output before it enters the context window, adds no LLM round-trips, and the hook intercept is transparent to both the agent and the user.
+
+---
+
+## Source review
+
+**Source location**: `tools/rtk/` (vendored from `https://github.com/rtk-ai/rtk`, `Cargo.toml` version `0.35.0`)
+
+### Filter pipeline architecture (verified)
+
+The two-track pipeline is confirmed from source:
+
+**Track 1 — Rust command handlers**: `src/discover/rules.rs` defines a `RULES` constant slice of `RtkRule` structs. Each rule carries a regex `pattern`, an `rtk_cmd` prefix, `category`, a per-category `savings_pct`, and optional per-subcommand overrides. Counting `pattern:` fields in `RULES`: **69 entries** (verified). Unmatched commands are passed through unchanged (exit code 1 from `rtk rewrite`).
+
+**Track 2 — TOML filter engine**: `src/filters/` contains **58 `.toml` files** (verified by directory listing). `build.rs` reads all `*.toml` files, validates TOML syntax, checks for duplicate filter names, and concatenates them into a single `builtin_filters.toml` artifact embedded at compile time as the constant `BUILTIN_TOML` in `src/core/toml_filter.rs`. The 8-stage pipeline is implemented in `TomlFilterRegistry` and applied in order: strip_ansi → replace → match_output → strip/keep_lines_matching → truncate_lines_at → head_lines/tail_lines → max_lines → on_empty (verified from `toml_filter.rs` module doc).
+
+**build.rs compile-time checks** (verified):
+
+- TOML parse validity of the combined filter file
+- Duplicate filter name detection across files
+- Does NOT enforce that every filter has inline tests (see correction below)
+
+### Tokenizer implementation (verified)
+
+`src/core/tracking.rs` exports:
+
+```rust
+pub fn estimate_tokens(text: &str) -> usize {
+    // ~4 chars per token on average
+    (text.len() as f64 / 4.0).ceil() as usize
+}
+```
+
+`TimedExecution::track()` calls `estimate_tokens(input)` and `estimate_tokens(output)` and passes the results to `Tracker::record()` which stores `(input_tokens, output_tokens, saved_tokens, savings_pct)` in SQLite. This is the same heuristic used in `scripts/benchmark.sh` (`$(( (len + 3) / 4 ))`).
+
+### Inline test enforcement — correction from prior analysis (verified)
+
+The prior analysis claimed: "Every built-in TOML filter is required to have at least one inline test — enforced at compile time by `test_builtin_all_filters_have_inline_tests` in `src/core/toml_filter.rs`."
+
+**This is incorrect.** Source inspection finds no such compile-time enforcement and no function named `test_builtin_all_filters_have_inline_tests`. Inline test enforcement is implemented as a **runtime** check via `rtk verify --require-all`: `src/hooks/verify_cmd.rs` calls `run_filter_tests()` which populates `VerifyResults.filters_without_tests`, and when `--require-all` is passed, it calls `anyhow::bail!()` if any filter lacks tests. The `build.rs` compile-time validation covers only TOML syntax correctness and duplicate names. Whether every filter actually has a test is not enforced at build time.
+
+### Handler/filter count discrepancy from references/rtk-ai-rtk.md
+
+`references/rtk-ai-rtk.md` records the tool version as `v0.28.2`. The vendored source (`Cargo.toml`) is `v0.35.0`. The handler and filter counts (69/58) align with the `ANALYSIS-rtk.md` which used `v0.35.0`. The reference file version is stale — the source at `tools/rtk/` is a newer build.
 
 ---
 
@@ -89,30 +138,30 @@ Key crates (from `Cargo.toml`): `clap 4`, `regex`, `lazy_static`, `rusqlite` (bu
 
 ## Benchmark claims — verified vs as-reported
 
-The benchmark harness (`scripts/benchmark.sh`) runs live commands on temporary fixtures and compares `ceil(chars / 4)` token estimates between raw and rtk-filtered output. It is not fixture-driven: git, cargo, and test-runner sections create actual repositories. The summary reports `TOTAL_UNIX → TOTAL_RTK (−N%)` and exits non-zero if fewer than 80% of tests show improvement (verified from source).
+The benchmark harness (`scripts/benchmark.sh`) runs live commands on temporary fixtures and compares `ceil(chars / 4)` token estimates between raw and rtk-filtered output. It is not fixture-driven: git, cargo, and test-runner sections create actual repositories. The summary reports `TOTAL_UNIX → TOTAL_RTK (−N%)` and exits non-zero if fewer than 80% of tests show improvement (verified from source — see lines 587-591: `if [ "$GOOD_PCT" -lt 80 ]; then ... exit 1`).
 
 Savings estimates hardcoded in `src/discover/rules.rs` per command category (used for `rtk gain` projections when no prior tracking data exists):
 
-| Command category | Savings estimate |
-|---|---|
-| git status/log/branch/fetch | 70% (as reported) |
-| git diff/show | 80% (as reported) |
-| git add/commit | 59% (as reported) |
-| gh pr | 87% (as reported) |
-| gh run | 82% (as reported) |
-| cargo test | 90% (as reported) |
-| cargo build/check | 80% (as reported) |
-| vitest/jest | 99% (as reported) |
-| playwright | 94% (as reported) |
-| next build | 87% (as reported) |
-| docker ps/logs | 85% (as reported) |
-| kubectl get/logs | 85% (as reported) |
-| tsc | 83% (as reported) |
-| eslint/biome | 84% (as reported) |
-| ls | 65% (as reported) |
-| cat/head/tail | 60% (as reported) |
-| grep/rg | 75% (as reported) |
-| find | 70% (as reported) |
+| Command category | Savings estimate | Source status |
+|---|---|---|
+| git status/log/branch/fetch | 70% | verified |
+| git diff/show | 80% | verified |
+| git add/commit | 59% | verified |
+| gh pr | 87% | verified |
+| gh run | 82% | verified |
+| cargo test | 90% | verified |
+| cargo build/check | 80% | verified |
+| vitest/jest | 99% | verified |
+| playwright | 94% | verified |
+| next build | 87% | verified |
+| docker ps/logs | 85% | verified |
+| kubectl get/logs | 85% | verified |
+| tsc | 83% | verified |
+| eslint/biome | 84% | verified |
+| ls | 65% | verified |
+| cat/head/tail | 60% | verified |
+| grep/rg | 75% | verified |
+| find | 70% | verified |
 
 README session-level estimates (30-minute session on a medium TypeScript/Rust project):
 
@@ -144,7 +193,7 @@ Benchmark harness: structure and methodology verified from source. Per-command f
 
 **Transparent hook rewrite with exit-code permission protocol.** The `rtk rewrite` exit-code protocol (`0`=allow+rewrite, `1`=passthrough, `2`=deny, `3`=ask+rewrite) is a clean design: the Rust binary is the single source of truth for both filtering and permission handling. Adding a new supported command requires only a new `RtkRule` entry in `src/discover/rules.rs`; the hook script and all platform integrations pick it up automatically with zero changes.
 
-**TOML filter DSL with mandatory inline tests.** The 8-stage declarative pipeline lets the filter corpus grow without new Rust code. Every built-in TOML filter is required to have at least one inline test — enforced at compile time by `test_builtin_all_filters_have_inline_tests` in `src/core/toml_filter.rs`. This is an unusually strong correctness guarantee for a heuristic filtering system.
+**TOML filter DSL with runnable inline tests.** The 8-stage declarative pipeline lets the filter corpus grow without new Rust code. Each TOML filter can carry `[[tests.<filter-name>]]` inline test cases. The `rtk verify --require-all` command (`src/hooks/verify_cmd.rs`) enforces that every filter has at least one test and fails with a non-zero exit if any filter is untested — intended for CI use. Note: this enforcement is runtime (`rtk verify`), not compile-time; `build.rs` validates only TOML syntax and duplicate names. This is still a meaningful correctness backstop for a heuristic filtering system.
 
 **Tee-based fidelity backstop.** Saving the unfiltered output to disk on failure and injecting a recovery hint (`[full output: /path/to/file.log]`) into the filtered output is a practical solution to the information loss risk inherent in lossy filtering.
 
@@ -189,4 +238,4 @@ Priority for follow-up: reproduce the benchmark harness against a live repositor
 | Eviction | Not applicable |
 | Benchmark harness | Yes — `scripts/benchmark.sh`; live fixture-based |
 | License | Apache-2.0 |
-| Maturity | v0.35.0; 69 Rust handlers + 58 TOML filters; actively maintained |
+| Maturity | v0.35.0 (verified); 69 Rust rule patterns + 58 TOML filters (verified); actively maintained |

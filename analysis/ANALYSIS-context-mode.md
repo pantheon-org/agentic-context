@@ -1,4 +1,5 @@
 ---
+slug: context-mode
 title: "Analysis — context-mode"
 date: 2026-04-09
 type: analysis
@@ -9,6 +10,11 @@ tool:
   language: "TypeScript"
   license: "MIT"
 source: ["references/web/context-mode.md", "tools/context-mode/"]
+local_clone: null
+reviewed: false
+reviewed_date: null
+source_reviewed: false
+updated: null
 ---
 
 # ANALYSIS: context-mode

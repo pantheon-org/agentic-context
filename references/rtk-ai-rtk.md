@@ -5,6 +5,7 @@ date: 2026-04-08
 type: reference
 tags: [tool, cli]
 source: "https://github.com/rtk-ai/rtk"
+local_clone: ../tools/rtk
 version: "v0.28.2"
 context: "CLI proxy that compresses command output before it enters LLM context — directly relevant to token budgeting and context noise reduction research."
 ---
@@ -32,6 +33,7 @@ Most context management tools operate on the injection side — choosing what to
 The hook integration works by prepending `rtk` to Bash commands via a settings hook (e.g., Claude Code's `bashHook` or similar). This is configured once with `rtk init -g`. The hook runs on every Bash tool call; built-in tools (Read, Grep, Glob) bypass it.
 
 Four filtering strategies (as described by the author):
+
 1. **Smart Filtering** — removes comments, blank lines, and boilerplate.
 2. **Grouping** — aggregates similar items (files by directory, errors by type).
 3. **Truncation** — retains relevant context, drops redundancy.
@@ -41,7 +43,7 @@ Four filtering strategies (as described by the author):
 
 - Primary interface: `rtk <cmd> [args]` (CLI passthrough).
 - Meta commands: `rtk gain` (token savings analytics), `rtk gain --history`, `rtk discover` (analyses Claude Code history for missed opportunities), `rtk proxy <cmd>` (bypass filter for debugging).
-- Init: `rtk init -g [--gemini|--codex|--agent <name>]` configures the hook for the target AI tool.
+- Init: `rtk init -g` configures the hook for the target AI tool; accepts `--gemini`, `--codex`, or `--agent <name>`.
 
 ### Dependencies
 

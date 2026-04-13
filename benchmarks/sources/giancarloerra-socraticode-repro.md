@@ -1,7 +1,18 @@
+---
+slug: "giancarloerra-socraticode"
+title: "socraticode — Benchmark Reproduction"
+source: "https://github.com/giancarloerra/SocratiCode"
+local_clone: "../../tools/giancarloerra-socraticode"
+harness_present: false
+harness_path: null
+outcome: "attempted — inconclusive"
+updated: 2026-04-13
+---
+
 # socraticode — Benchmark Reproduction
 
-**Source**: `https://github.com/giancarloerra/SocratiCode` (tag: v1.3.2)
-**Date**: 2026-04-10
+**Source**: `https://github.com/giancarloerra/SocratiCode` (vendored: v1.4.1; benchmark was conducted against v1.3.2)
+**Date**: 2026-04-13 (source review); original: 2026-04-10
 **Environment**: not run — no scripted harness exists
 **Outcome**: not reproducible — benchmark is an author-run live session documented in README; no benchmark script is committed to the repository
 
@@ -67,7 +78,7 @@ grep -rl "workspace trust" . | head -20
 
 Token counts must be measured from Claude Code's `/cost` command or session token logging — there is no standalone harness to automate this.
 
-## Notes on the hybrid search mechanism (verified from source)
+## Notes on the hybrid search mechanism (verified from source — v1.4.1)
 
 The underlying `searchChunks()` function in `src/services/qdrant.ts` is confirmed to use Qdrant's native hybrid query API:
 
@@ -83,7 +94,13 @@ qdrant.query(collectionName, {
 })
 ```
 
-This requires Qdrant v1.15.2+. The BM25 model runs server-side inside the Qdrant container; IDF corpus is built from indexed documents at upsert time.
+This requires Qdrant v1.15.2+. The pinned Docker image is `qdrant/qdrant:v1.17.0`. The BM25 model runs server-side inside the Qdrant container; IDF corpus is built from indexed documents at upsert time.
+
+**Multi-collection search (added v1.4.0):** `searchMultipleCollections()` in `qdrant.ts` queries collections in parallel and merges results using a custom client-side RRF implementation (`mergeMultiCollectionResults()`, `RRF_K = 60`). This second RRF layer runs in Node.js. The benchmark was run against a single collection (pre-v1.4.0 behaviour) and does not exercise multi-collection search.
+
+**Chunk size cap:** All chunk payloads are truncated to `MAX_CHUNK_CHARS = 2000` characters at index time (`applyCharCap()` in `indexer.ts`). This means `codebase_search` returns at most 2000 characters per chunk, regardless of the underlying function or class size. This cap is the primary mechanism behind the token reduction: instead of returning 200 lines (potentially 10,000+ characters), each result is capped at ~2000 characters. The benchmark's "bytes" figures reflect this cap in the SocratiCode column.
+
+**SQLite correction:** The original triage described a "local (SQLite + in-process HNSW)" mode. This is incorrect — no SQLite or in-process vector index exists in the codebase. All persistence uses Qdrant exclusively.
 
 ## Test suite
 
