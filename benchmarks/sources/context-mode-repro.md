@@ -1,3 +1,14 @@
+---
+slug: "context-mode"
+title: "context-mode — Benchmark Reproduction"
+source: "https://github.com/mksglu/context-mode"
+local_clone: "../../tools/context-mode"
+harness_present: true
+harness_path: "tests/benchmark.ts"
+outcome: "partially verified"
+updated: 2026-04-13
+---
+
 # context-mode — Benchmark Reproduction
 
 **Source**: `tools/context-mode/` (pinned: `601aaf1`)

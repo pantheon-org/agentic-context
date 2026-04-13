@@ -1,4 +1,5 @@
 ---
+slug: graphify
 title: "Analysis — graphify"
 date: 2026-04-13
 type: analysis
@@ -8,7 +9,12 @@ tool:
   version: "v0.4.10 (962f28c)"
   language: "Python"
   license: "MIT"
-source: ["references/graphify.md", "tools/graphify/"]
+source: ["references/safishamsi-graphify.md", "tools/graphify/"]
+local_clone: null
+reviewed: false
+reviewed_date: null
+source_reviewed: false
+updated: null
 ---
 
 # ANALYSIS: graphify

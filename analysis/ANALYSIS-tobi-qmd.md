@@ -1,6 +1,8 @@
 ---
+slug: tobi-qmd
 title: "Analysis — qmd"
 date: 2026-04-10
+updated: 2026-04-13
 type: analysis
 tool:
   name: "qmd"
@@ -9,6 +11,10 @@ tool:
   language: "TypeScript"
   license: "MIT"
 source: "references/tobi-qmd.md"
+local_clone: "tools/tobi-qmd/"
+reviewed: false
+reviewed_date: null
+source_reviewed: false
 ---
 
 # ANALYSIS: qmd
@@ -19,22 +25,24 @@ source: "references/tobi-qmd.md"
 
 qmd is an on-device hybrid search engine for local markdown (and code) files, exposing BM25, dense vector, and HyDE retrieval via a single MCP server. All inference — embeddings (~300 MB), reranking (~640 MB), and query expansion (~1.1 GB) — runs locally using `node-llama-cpp` with GGUF models. No self-reported latency or recall figures are published; the repository ships a full benchmark harness (`qmd bench`) and a vitest-based eval suite with explicit hit-rate thresholds (verified from source). The architectural claim is that RRF fusion over typed sub-queries, combined with chunk-level (not document-level) LLM reranking, avoids the token-count trap that makes full-body reranking impractical.
 
+**Source review note (2026-04-13)**: Source at `tools/tobi-qmd/` has been read directly. The 8-step pipeline is verified verbatim from `src/store.ts`. The `finetune/` directory contradicts the prior claim that training data and evaluation are undocumented — a complete training pipeline with data, configs, eval scripts, and published training results (SFT: 92.0% average score) is present in the repository. See the "Source review" section below for details.
+
 ---
 
 ## What it does (verified from source)
 
 ### Core mechanism
 
-The critical path for `hybridQuery` (the MCP `query` tool) is an 8-step pipeline verified in `src/store.ts`:
+The critical path for `hybridQuery` (the MCP `query` tool) is an 8-step pipeline verified directly from `src/store.ts` (lines 4024–4281, function `hybridQuery`):
 
-1. **BM25 probe** — `searchFTS()` fires synchronously. If one result dominates by a score threshold and gap margin, and no `intent` field was provided, expansion is skipped (strong-signal bypass).
-2. **Query expansion** — `expandQuery()` calls the fine-tuned `qmd-query-expansion-1.7B` GGUF model (via `node-llama-cpp`) and returns a list of typed `Queryable` variants (`lex`, `vec`, `hyde`). Result is cached in the `llm_cache` SQLite table keyed by `(query, model, intent)`.
-3. **Typed search routing** — `lex` variants go to `searchFTS()` (synchronous); `vec` and `hyde` variants are collected and batch-embedded in a single `llm.embedBatch()` call, then passed to `searchVec()` (sqlite-vec KNN query). The original query is also embedded and vector-searched.
-4. **RRF fusion** — `reciprocalRankFusion()` merges all ranked lists with K=60. The first two lists (original FTS + first vector) receive 2x weight; expansion-derived lists receive 1x weight.
-5. **Chunk selection** — Each candidate document is synchronously chunked (900-token target, 15% overlap, scored break points). The best chunk per document is selected by keyword-overlap scoring against query terms and intent terms. Reranking runs on these chunks, not full document bodies — this is explicitly called out in source comments as the critical optimization to avoid O(tokens) cost.
-6. **LLM reranking** — `store.rerank()` calls the `qwen3-reranker-0.6b-q8_0` GGUF model on the per-document best chunks. Results are cached per `(rerankQuery, model, chunkText)`. A batch of up to 40 candidates (configurable `candidateLimit`) is sent.
-7. **Score blending** — RRF position and reranker score are blended with position-aware weights: documents ranked 1–3 by RRF use a 0.75/0.25 split (more trust to retrieval rank); 4–10 use 0.60/0.40; beyond 10 use 0.40/0.60.
-8. **Dedup, filter, slice** — final deduplication by file path, `minScore` filter, and `limit` applied.
+1. **BM25 probe** (verified) — `searchFTS()` fires synchronously. If one result dominates by a score threshold and gap margin, and no `intent` field was provided, expansion is skipped (strong-signal bypass). Source: `store.ts` line 4024, constants `STRONG_SIGNAL_MIN_SCORE` and `STRONG_SIGNAL_MIN_GAP`.
+2. **Query expansion** (verified) — `expandQuery()` calls the fine-tuned GGUF at `hf:tobil/qmd-query-expansion-1.7B-gguf/qmd-query-expansion-1.7B-q4_k_m.gguf` (the constant `DEFAULT_GENERATE_MODEL` in `llm.ts` line 199; `DEFAULT_QUERY_MODEL = "Qwen/Qwen3-1.7B"` in `store.ts` is the base model identifier, not the deployed GGUF). Returns typed `Queryable` variants (`lex`, `vec`, `hyde`). Result cached in `llm_cache` table keyed by `(query, model, intent)`. Source: `store.ts` lines 4038–4055.
+3. **Typed search routing** (verified) — `lex` variants go to `searchFTS()` (synchronous, runs immediately); `vec` and `hyde` variants plus the original query are collected and batch-embedded in a single `llm.embedBatch()` call, then run through `searchVec()` (sqlite-vec KNN). Source: `store.ts` lines 4057–4119.
+4. **RRF fusion** (verified) — `reciprocalRankFusion()` merges all ranked lists. The first two lists (original FTS + first vector) receive 2× weight; all other lists receive 1× weight (weights array `rankedLists.map((_, i) => i < 2 ? 2.0 : 1.0)`). Source: `store.ts` lines 4121–4125.
+5. **Chunk selection** (verified) — each candidate document is chunked (900-token target, 15% overlap). The best chunk per document is selected by keyword-overlap scoring against query terms and intent terms (weighted 0.5× relative to query terms). Reranking operates on chunks, not full bodies — the source comment at line 4130 reads: "Reranking full bodies is O(tokens) — the critical perf lesson that motivated this refactor." Source: `store.ts` lines 4129–4153.
+6. **LLM reranking** (verified) — `store.rerank()` calls the `qwen3-reranker-0.6b-q8_0` GGUF on per-document best chunks. Results cached per `(rerankQuery, model, chunkText)`. Batch of up to `candidateLimit` (default 40) candidates sent. Source: `store.ts` lines 4206–4218.
+7. **Score blending** (verified) — RRF rank and reranker score blended with position-aware weights: RRF rank 1–3 → 0.75/0.25 split; rank 4–10 → 0.60/0.40; rank >10 → 0.40/0.60. Formula: `rrfWeight * (1/rrfRank) + (1 - rrfWeight) * rerankScore`. Source: `store.ts` lines 4220–4269.
+8. **Dedup, filter, slice** (verified) — deduplication by file path, `minScore` filter, `limit` slice applied to sorted blended results. Source: `store.ts` lines 4272–4281.
 
 The BM25 layer uses SQLite FTS5 with custom field weights across `title`, `body`, and `path` columns (a bug in older versions had incorrect weights; fixed in v2.1.0 per CHANGELOG). Vector storage uses `sqlite-vec` (v0.1.9) with 384-dimensional embeddings in a `vec0` virtual table. All data lives in `~/.cache/qmd/index.sqlite`.
 
@@ -64,7 +72,7 @@ Optional dependencies: `sqlite-vec-{darwin,linux,windows}-{arm64,x64}` prebuilt 
 ### Scope / limitations
 
 - Total model footprint on first run: ~2 GB. BM25-only (`qmd search`) requires no models.
-- The query-expansion model (`tobil/qmd-query-expansion-1.7B-q4_k_m.gguf`) is hosted by the author on HuggingFace. Training data and evaluation methodology are not documented in the repository.
+- The query-expansion model (`tobil/qmd-query-expansion-1.7B-q4_k_m.gguf`) is hosted by the author on HuggingFace. Training data, training code, and evaluation are fully documented in the `finetune/` directory — this contradicts the prior triage claim that they were undocumented. The training pipeline is a two-stage SFT (Qwen3-1.7B base, LoRA rank 16, ~2,290 examples) with a rule-based reward function. Published results: SFT train loss 0.472, eval loss 0.304, token accuracy 93.8%, reward-function score 92.0%. These are training metrics, not retrieval benchmark results.
 - HTTP MCP transport has no authentication. Running as a daemon exposes the index to any local process.
 - When switching embedding models, all documents must be re-embedded (`qmd embed -f`). The v2.1.0 release adds a hard error on dimension mismatch rather than silently rebuilding the vec0 table.
 - AST-aware chunking (`--chunk-strategy auto`) is opt-in; the default remains `regex`. Grammar packages are `optionalDependencies` and fall back gracefully to regex on install failure.
@@ -77,15 +85,19 @@ Optional dependencies: `sqlite-vec-{darwin,linux,windows}-{arm64,x64}` prebuilt 
 
 | Metric | Value | Status |
 |---|---|---|
-| BM25 easy queries Hit@3 | ≥80% | as reported (threshold in test/eval.test.ts) |
-| BM25 medium queries Hit@3 | ≥15% | as reported (threshold in test/eval.test.ts) |
-| BM25 hard queries Hit@5 | ≥15% | as reported (threshold in test/eval.test.ts) |
-| BM25 overall Hit@3 | ≥40% | as reported (threshold in test/eval.test.ts) |
-| Hybrid easy queries Hit@3 | ≥80% | as reported (threshold in test/eval.test.ts) |
-| Hybrid medium queries Hit@3 (with vectors) | ≥50% | as reported (threshold in test/eval.test.ts) |
-| Hybrid hard queries Hit@5 (with vectors) | ≥35% | as reported (threshold in test/eval.test.ts) |
-| Hybrid fusion queries Hit@3 (with vectors) | ≥50% | as reported (threshold in test/eval.test.ts) |
-| Hybrid overall Hit@3 (with vectors) | ≥60% | as reported (threshold in test/eval.test.ts) |
+| BM25 easy queries Hit@3 | ≥80% | verified (vitest assertion, `test/eval.test.ts` line 131) |
+| BM25 medium queries Hit@3 | ≥15% | verified (vitest assertion, `test/eval.test.ts` line 137) |
+| BM25 hard queries Hit@5 | ≥15% | verified (vitest assertion, `test/eval.test.ts` line 143) |
+| BM25 overall Hit@3 | ≥40% | verified (vitest assertion, `test/eval.test.ts` line 149) |
+| Vector easy queries Hit@3 | ≥60% | verified (vitest assertion, `test/eval.test.ts` line 218; prior analysis incorrectly listed as ≥80%) |
+| Vector medium queries Hit@3 | ≥40% | verified (vitest assertion, `test/eval.test.ts` line 230) |
+| Vector hard queries Hit@5 | ≥30% | verified (vitest assertion, `test/eval.test.ts` line 243; prior analysis incorrectly listed as ≥35%) |
+| Vector overall Hit@3 | ≥50% | verified (vitest assertion, `test/eval.test.ts` line 255; prior analysis incorrectly listed as ≥60%) |
+| Hybrid easy queries Hit@3 | ≥80% | verified (vitest assertion, `test/eval.test.ts` line 328) |
+| Hybrid medium queries Hit@3 (with vectors) | ≥50% | verified (vitest assertion, `test/eval.test.ts` line 338) |
+| Hybrid hard queries Hit@5 (with vectors) | ≥35% | verified (vitest assertion, `test/eval.test.ts` line 351) |
+| Hybrid fusion queries Hit@3 (with vectors) | ≥50% | verified (vitest assertion, `test/eval.test.ts` line 362) |
+| Hybrid overall Hit@3 (with vectors) | ≥60% | verified (vitest assertion, `test/eval.test.ts` line 395; applies to non-fusion queries only) |
 | Latency figures | not published | gap — no wall-clock benchmarks in README |
 | Recall/precision figures | not published | gap — bench harness exists but no published results |
 
@@ -105,13 +117,13 @@ The separate benchmark harness (`src/bench/bench.ts`, invoked as `qmd bench <fix
 
 **Dynamic MCP server instructions.** The server queries the live index at startup and injects collection names, document counts, and capability status directly into the MCP `initialize` response. This means the agent receives accurate index orientation without any tool calls, reducing cold-start latency and prompt engineering burden.
 
-**Fine-tuned query expansion model.** The `qmd-query-expansion-1.7B` model is purpose-built for generating typed `lex`/`vec`/`hyde` variants from a natural-language query. No off-the-shelf model does this; the author fine-tuned and hosts the model. The training data and evaluation are undocumented, which is a risk.
+**Fine-tuned query expansion model.** The `qmd-query-expansion-1.7B` model is purpose-built for generating typed `lex`/`vec`/`hyde` variants from a natural-language query. No off-the-shelf model does this; the author fine-tuned and hosts the model. The training pipeline (`finetune/`), training data (~2,290 JSONL examples), and reward function (`reward.py`) are fully documented in the repository — see the Source review section for details.
 
 **AST-aware chunk boundaries.** Tree-sitter grammars for TypeScript/JavaScript, Python, Go, and Rust allow chunking at function and class boundaries rather than arbitrary token positions. This improves retrieval precision for code files by keeping logical units intact.
 
 ### Gaps and risks
 
-**Query expansion model is a single point of opacity.** The `tobil/qmd-query-expansion-1.7B` model is hosted on HuggingFace by the author. There is no published training dataset, evaluation methodology, or reproducibility artifact in the repository. Users cannot audit the model, and the HuggingFace repo could be removed or updated silently.
+**Query expansion model training is documented but HuggingFace-hosted.** The `tobil/qmd-query-expansion-1.7B-q4_k_m.gguf` model is hosted on HuggingFace. Contrary to the prior triage claim, the full training pipeline ships in the repo: `finetune/` contains training data (~2,290 JSONL examples across 10+ source files), training code (`train.py`, SFT via LoRA on Qwen3-1.7B), a rule-based eval/reward function (`reward.py`, `SCORING.md`), and published training results (SFT: 92.0% average score, 30/30 excellent on test queries). The residual risk is that the HuggingFace repos (`tobil/qmd-query-expansion-1.7B-gguf`, etc.) could be removed or updated silently — the training artifacts in the repo allow reproduction but not zero-effort recovery of the deployed GGUF.
 
 **No authentication on HTTP daemon.** The `qmd mcp --http --daemon` path is explicitly undocumented regarding authentication. Any local process can query the index. This is a known issue from triage and unfixed as of v2.1.0.
 
@@ -125,11 +137,61 @@ The separate benchmark harness (`src/bench/bench.ts`, invoked as `qmd bench <fix
 
 ---
 
+## Source review (2026-04-13)
+
+Source vendored at `tools/tobi-qmd/`. Key files read: `src/store.ts`, `src/llm.ts`, `src/bench/bench.ts`, `src/bench/score.ts`, `src/bench/types.ts`, `test/eval.test.ts`, `finetune/README.md`, `finetune/CLAUDE.md`, `finetune/SCORING.md`, `finetune/reward.py`, `package.json`.
+
+### Architecture verification
+
+- **8-step hybridQuery pipeline**: verified verbatim from `src/store.ts` function `hybridQuery` (exported at line 4003). The source comment at lines 3993–4001 documents all 8 steps explicitly. All step details match the prior analysis with two corrections noted below.
+- **RRF weight assignment**: verified — `rankedLists.map((_, i) => i < 2 ? 2.0 : 1.0)` at line 4122. First two lists (original FTS + first vec) receive 2× weight exactly as described.
+- **Score blending thresholds**: verified — rrfRank ≤3 → 0.75, ≤10 → 0.60, else → 0.40 at lines 4229–4232.
+- **Chunk size**: verified — `CHUNK_SIZE_TOKENS = 900`, `CHUNK_OVERLAP_TOKENS = 135` (15%), constants at lines 51–53.
+- **Default models**: verified — `DEFAULT_EMBED_MODEL = "embeddinggemma"`, `DEFAULT_RERANK_MODEL = "ExpedientFalcon/qwen3-reranker:0.6b-q8_0"` (store.ts lines 42–43). The query expansion GGUF is `DEFAULT_GENERATE_MODEL = "hf:tobil/qmd-query-expansion-1.7B-gguf/qmd-query-expansion-1.7B-q4_k_m.gguf"` in `llm.ts` line 199. `DEFAULT_QUERY_MODEL = "Qwen/Qwen3-1.7B"` in store.ts is the base HuggingFace model identifier used in some paths — distinct from the deployed GGUF.
+- **Strong-signal bypass**: verified — `STRONG_SIGNAL_MIN_SCORE` and `STRONG_SIGNAL_MIN_GAP` constants used at lines 4032–4034. Intent field disables bypass (line 4032).
+- **llm_cache table**: verified — `db.ts` schema creates table at line 787 of store.ts; cache used in `expandQuery` (line 3260) and `rerank` (lines 3310–3330).
+
+### Corrections to prior analysis
+
+| Claim | Prior | Source verdict |
+|---|---|---|
+| Training data undocumented | "not documented in the repository" | **Incorrect** — `finetune/data/` contains ~2,290 JSONL training examples across 10+ files |
+| Evaluation undocumented | "not documented" | **Incorrect** — `finetune/eval.py` + `reward.py` + `SCORING.md` provide full eval pipeline |
+| Training results unpublished | implied gap | **Incorrect** — `finetune/README.md` publishes SFT results (loss, accuracy, reward score) |
+| Vector easy Hit@3 threshold | ≥80% | **Wrong** — source says ≥60% (`test/eval.test.ts` line 218) |
+| Vector hard Hit@5 threshold | ≥35% | **Wrong** — source says ≥30% (`test/eval.test.ts` line 243) |
+| Vector overall Hit@3 threshold | ≥60% | **Wrong** — source says ≥50% (`test/eval.test.ts` line 255) |
+
+### Fine-tune training pipeline (verified from `finetune/`)
+
+The `finetune/` directory is a self-contained Python ML training project:
+
+- **Base model**: `Qwen/Qwen3-1.7B` (not a custom architecture — LoRA fine-tune)
+- **Method**: SFT only in production path; GRPO is experimental in `experiments/grpo/`
+- **Training data**: ~2,290 examples (after dedup) from 10+ JSONL source files. Schema enforced by Pydantic (`dataset/schema.py`). Format: `{"query": "...", "output": [["lex", "..."], ["vec", "..."], ["hyde", "..."]]}`
+- **Reward function**: rule-based, 5 dimensions — Format (0–30), Diversity (0–30), HyDE (0–20), Quality (0–20), Entity preservation (−45 to +20). Max 140 with HyDE, 120 without. No LLM judge.
+- **Eval set**: 31 test queries across 8 categories in `finetune/evals/queries.txt`
+- **Published training results** (from `finetune/README.md`, Qwen3-1.7B SFT v2):
+
+  | Metric | Value |
+  |---|---|
+  | Final train loss | 0.472 |
+  | Final eval loss | 0.304 |
+  | Token accuracy (train) | 97.4% |
+  | Token accuracy (eval) | 93.8% |
+  | Reward-function score (avg) | 92.0% |
+  | Excellent-rated outputs | 30/30 test queries |
+  | Hardware | A10G 24 GB VRAM, ~45 min, ~$1.50 |
+
+- **Experiments directory**: LFM2-1.2B (hybrid architecture) and GEPA (DSPy prompt optimization) experiments present but not in production path.
+
+---
+
 ## Recommendation
 
 qmd is the most fully-realized local RAG-for-agents tool surveyed to date. The architecture is sound: the layered retrieval pipeline is well-reasoned, the implementation is clean and well-tested, and the MCP integration is first-class. The 20k+ stars and 25+ community PRs in v2.1.0 suggest active real-world use.
 
-Primary concerns before production adoption: (1) the query-expansion model is undocumented and opaque; if it degrades or disappears the core differentiator is gone; (2) no wall-clock latency data is published, making it impossible to predict performance on large indexes without self-testing; (3) the HTTP daemon has no authentication.
+Primary concerns before production adoption: (1) the query-expansion model's training is fully documented in the repo (training data, code, reward function), but the deployed GGUF is hosted on HuggingFace and could be removed or silently updated — the training artifacts allow reproduction but not instant recovery; (2) no wall-clock latency data is published, making it impossible to predict performance on large indexes without self-testing; (3) the HTTP daemon has no authentication.
 
 Recommended for: agent memory and session-context retrieval on local markdown corpora where all three of BM25, semantic, and HyDE retrieval are needed and a ~2 GB model footprint is acceptable. BM25-only use (`qmd search`) is a zero-model alternative for simpler cases.
 

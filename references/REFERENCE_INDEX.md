@@ -14,15 +14,15 @@ For full content, open the linked file. For papers, see `references/papers/` for
 |---|---|---|
 | [jiang-llmlingua](jiang-llmlingua.md) | Jiang et al. | Coarse-to-fine prompt compression: budget controller + iterative token-level removal + instruction tuning; up to 20× compression with small accuracy loss; EMNLP 2023 |
 | [zhang-recursive-lm](zhang-recursive-lm.md) | Zhang et al. | Inference paradigm: LLM programmatically decomposes and recursively calls itself over long-input snippets; processes 100× context window; RLM-Qwen3-8B +28.3% over base model (preprint 2025) |
-| [juliusbrussee-caveman](juliusbrussee-caveman.md) | JuliusBrussee | Claude Code skill: forces caveman-speak output via system-prompt constraint; companion compress sub-tool rewrites memory files; claims 65% output / 45% input token reduction (MIT) |
-| [choihyunsus-n2-arachne](choihyunsus-n2-arachne.md) | choihyunsus | MCP server: 4-layer context assembly (tree + target + deps + semantic), hybrid BM25/vector search, dependency graph traversal, token-budget paging; reports 333× compression on 3,219-file project (Apache-2.0) |
+| [juliusbrussee-caveman](juliusbrussee-caveman.md) | JuliusBrussee | Claude Code skill: forces caveman-speak output via system-prompt constraint; companion compress sub-tool rewrites memory files; ~50–53% honest output reduction (skill vs terse control, char proxy); 4 eval arms in committed snapshot (MIT) |
+| [choihyunsus-n2-arachne](choihyunsus-n2-arachne.md) | choihyunsus | MCP server: 4-layer context assembly (tree + target + deps + semantic), hybrid BM25/vector search, dependency graph traversal, token-budget paging; reports 333× compression on 3,219-file project; benchmark harness scripts absent from repo — claim unverifiable (dual Apache-2.0/commercial) |
 | [context-mode](web/context-mode.md) | mksglu | MCP plugin: subprocess sandbox keeps raw tool output out of context window; reports 98% median token reduction; session continuity via SQLite/FTS5 (ELv2) |
-| [rtk](rtk.md) | rtk-ai | CLI proxy: intercepts shell command output and applies per-command noise filtering, grouping, truncation, and deduplication before it reaches the LLM; self-reports 60–90% token reduction (Apache-2.0) |
-| [jgravelle-jcodemunch-mcp](jgravelle-jcodemunch-mcp.md) | jgravelle | MCP server: tree-sitter AST symbol extraction, SQLite-backed local index, byte-offset retrieval; reports 95% token reduction on code-reading tasks (dual-use license) |
-| [jgravelle-jdocmunch-mcp](jgravelle-jdocmunch-mcp.md) | jgravelle | MCP server: structured section-level doc indexing with byte-offset retrieval; 13 MCP tools; reports 97–98% token reduction on doc-reading tasks (dual-use license) |
+| [rtk-ai-rtk](rtk-ai-rtk.md) | rtk-ai | CLI proxy: intercepts shell command output and applies per-command noise filtering, grouping, truncation, and deduplication before it reaches the LLM; self-reports 60–90% token reduction (Apache-2.0) |
+| [jgravelle-jcodemunch-mcp](jgravelle-jcodemunch-mcp.md) | jgravelle | MCP server: tree-sitter AST symbol extraction, SQLite-backed local index, byte-offset retrieval; WRR fusion across 4 channels; reports 99.6% aggregate reduction (15 task-runs, updated from prior 95% figure); v1.36.0 (dual-use license) |
+| [jgravelle-jdocmunch-mcp](jgravelle-jdocmunch-mcp.md) | jgravelle | MCP server: structured section-level doc indexing with byte-offset retrieval; 16 MCP tools (not 13); v1.8.0; reports 97–98% token reduction on doc-reading tasks (dual-use license) |
 | [deusdata-codebase-memory-mcp](deusdata-codebase-memory-mcp.md) | DeusData | MCP server: persistent SQLite knowledge graph via tree-sitter AST, 66 languages, 14 tools, single static C binary; reports 99.2% token reduction vs file-by-file grep (MIT) |
-| [colbymchenry-codegraph](colbymchenry-codegraph.md) | colbymchenry | Node.js MCP server: Tree-sitter AST → SQLite knowledge graph; blast-radius + call-graph traversal reduces Explore agent to single `codegraph_explore` call; reports 94% fewer tool calls (MIT) |
-| [tirth8205-code-review-graph](tirth8205-code-review-graph.md) | tirth8205 | Python MCP server: 22 tools, blast-radius analysis, community detection, wiki generation, multi-repo registry; reports 8.2× average token reduction on reviews; 7,624 stars (MIT) |
+| [colbymchenry-codegraph](colbymchenry-codegraph.md) | colbymchenry | Node.js MCP server: Tree-sitter AST → SQLite knowledge graph; 9 MCP tools; FTS5 + BFS traversal (no vectors); blast-radius + call-graph traversal; reports 92% fewer tool calls on average (MIT) |
+| [tirth8205-code-review-graph](tirth8205-code-review-graph.md) | tirth8205 | Python MCP server: 24 tools (not 22), 22 languages (not 19), blast-radius analysis, community detection, wiki generation, multi-repo registry; reports 8.2× average token reduction on reviews; 7,624 stars (MIT) |
 
 ---
 
@@ -52,11 +52,11 @@ For full content, open the linked file. For papers, see `references/papers/` for
 |---|---|---|
 | [oraios-serena](oraios-serena.md) | oraios | MCP server: LSP-backed semantic code retrieval and symbol-level editing for coding agents; 40+ languages, built-in agent memory system (MIT) |
 | [context-mode](web/context-mode.md) | mksglu | MCP plugin: subprocess sandbox + SQLite/FTS5 event log; extends session from ~30 min to ~3 hours via BM25 compaction recovery; 12 platforms (ELv2) |
-| [rtk](rtk.md) | rtk-ai | CLI proxy: transparent hook-based output compression for 100+ dev commands; single Rust binary, <10 ms overhead, no LLM involvement (Apache-2.0) |
-| [giancarloerra-socraticode](giancarloerra-socraticode.md) | giancarloerra | MCP server: hybrid semantic+BM25 codebase search, AST-aware chunking, polyglot dependency graphs, zero-config local-first (AGPL-3.0) |
-| [tobi-qmd](tobi-qmd.md) | tobi | Node.js MCP server: BM25/vec/HyDE hybrid search over local markdown, lex/vec/hyde query types + RRF reranking, Claude Code plugin, SQLite storage; 20.3k stars (MIT) |
+| [rtk-ai-rtk](rtk-ai-rtk.md) | rtk-ai | CLI proxy: transparent hook-based output compression for 100+ dev commands; single Rust binary, <10 ms overhead, no LLM involvement; inline test enforcement is runtime-only (rtk verify), not compile-time (Apache-2.0) |
+| [giancarloerra-socraticode](giancarloerra-socraticode.md) | giancarloerra | MCP server: hybrid dense+BM25 (Qdrant RRF) codebase search, AST-aware chunking, polyglot dependency graphs; Qdrant-only (no SQLite); 61.5% is bytes not tokens; AGPL-3.0 |
+| [tobi-qmd](tobi-qmd.md) | tobi | Node.js MCP server: BM25/vec/HyDE hybrid search over local markdown, lex/vec/hyde query types + RRF reranking, Claude Code plugin, SQLite storage; training artifacts ARE in repo (finetune/); 20.3k stars (MIT) |
 | [lum1104-understand-anything](lum1104-understand-anything.md) | Lum1104 | Claude Code skill: 5-agent pipeline builds structural + domain knowledge graph; interactive dashboard; guided tours, diff impact analysis, persona-adaptive UI; 8,081 stars (MIT) |
-| [graphify](graphify.md) | safishamsi | Python CLI + MCP skill: multi-modal knowledge graph (code/PDFs/images/video); Tree-sitter AST + parallel LLM extraction; NetworkX + Leiden clustering; 71.5× token reduction on mixed corpus (as reported); 3.7k+ stars (MIT) |
+| [safishamsi-graphify](safishamsi-graphify.md) | safishamsi | Python CLI + MCP skill: multi-modal knowledge graph (code/PDFs/images/video); Tree-sitter AST + parallel LLM extraction; NetworkX + Leiden clustering; 71.5× token reduction on mixed corpus (as reported); 3.7k+ stars (MIT) |
 | [danjdewhurst-git-semantic-bun](danjdewhurst-git-semantic-bun.md) | danjdewhurst | CLI tool: semantic vector search over git commit history; Bun/TypeScript; no MCP server; borderline scope — retrieval primitive rather than context management (MIT) |
 
 ---
