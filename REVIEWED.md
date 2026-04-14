@@ -10,6 +10,7 @@ See `AGENTS.md` for the full triage workflow.
 
 | Date | Name | Type | Disposition | Notes |
 |---|---|---|---|---|
+| 2026-04-14 | ryandonofrio3-osgrep | tool | analysis | npm CLI + Claude Code plugin; LanceDB vector store, tree-sitter AST chunking, ColBERT reranking, dual Code/Docs channels, skeleton+trace commands; 20% token reduction / 30% speedup (as reported, benchmark methodology undocumented); 1,128 stars; Apache-2.0 |
 | 2026-04-14 | glitterkill-sdl-mcp | tool | analysis | TypeScript MCP server; Symbol Cards (~100 tokens/symbol), Iris Gate Ladder (4-rung context escalation), SCIP integration, 38 tool surfaces; 81% `tools/list` reduction in gateway mode (as reported); source-available; 125 stars |
 | 2026-04-13 | graphify | tool | analysis | Python CLI + MCP skill; multi-modal (code/PDFs/images/video); Tree-sitter AST + LLM semantic extraction; NetworkX + Leiden graph; 71.5× token reduction on curated 52-file corpus (as reported); 3.7k+ stars; MIT |
 | 2026-04-10 | colbymchenry-codegraph | tool | analysis | Node.js/WASM MCP server; single codegraph_explore tool; created 2026-01-18; 94% fewer tool calls (own eval runner); README copies CRG's diagrams and benchmark table — treat with caution; 412 stars; MIT |

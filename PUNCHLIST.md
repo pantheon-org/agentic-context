@@ -24,6 +24,7 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[-]` skipped (see R
 - [x] danjdewhurst/git-semantic-bun — CLI; semantic vector search over git history; no MCP; borderline scope
 - [x] safishamsi/graphify — Python CLI + MCP skill; multi-modal knowledge graph (code/PDFs/images/video); Tree-sitter AST + Leiden clustering; reports 71.5× token reduction; 3.7k stars
 - [x] sdl-mcp (GlitterKill/sdl-mcp) — TypeScript MCP server; Symbol Cards + Iris Gate Ladder escalation + SCIP integration; 38 tool surfaces; 81% `tools/list` reduction (gateway mode, as reported); source-available; 125 stars
+- [x] osgrep (Ryandonofrio3/osgrep) — npm CLI + Claude Code plugin; LanceDB vector store, tree-sitter AST chunking, Granite 30M dense + mxbai ColBERT 17M reranking, dual FTS+vector hybrid search; 20% cost / 30% speedup (as reported, 10-query CSV); MCP server is a stub; 1,128 stars; Apache-2.0
 
 ## Papers
 

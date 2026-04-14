@@ -59,6 +59,7 @@ For full content, open the linked file. For papers, see `references/papers/` for
 | [lum1104-understand-anything](lum1104-understand-anything.md) | Lum1104 | Claude Code skill: 5-agent pipeline builds structural + domain knowledge graph; interactive dashboard; guided tours, diff impact analysis, persona-adaptive UI; 8,081 stars (MIT) |
 | [safishamsi-graphify](safishamsi-graphify.md) | safishamsi | Python CLI + MCP skill: multi-modal knowledge graph (code/PDFs/images/video); Tree-sitter AST + parallel LLM extraction; NetworkX + Leiden clustering; 71.5× token reduction on mixed corpus (as reported); 3.7k+ stars (MIT) |
 | [danjdewhurst-git-semantic-bun](danjdewhurst-git-semantic-bun.md) | danjdewhurst | CLI tool: semantic vector search over git commit history; Bun/TypeScript; no MCP server; borderline scope — retrieval primitive rather than context management (MIT) |
+| [ryandonofrio3-osgrep](ryandonofrio3-osgrep.md) | Ryandonofrio3 | npm CLI + Claude Code plugin: LanceDB vector store, tree-sitter AST chunking, ColBERT reranking, dual Code/Docs search channels, skeleton (structural view) + trace (call-graph); 20% token reduction / 30% speedup (as reported); 1,128 stars (Apache-2.0) |
 
 ---
 

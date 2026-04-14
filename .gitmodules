@@ -46,3 +46,6 @@
 [submodule "tools/glitterkill-sdl-mcp"]
 	path = tools/glitterkill-sdl-mcp
 	url = https://github.com/GlitterKill/sdl-mcp
+[submodule "tools/osgrep"]
+	path = tools/osgrep
+	url = https://github.com/Ryandonofrio3/osgrep

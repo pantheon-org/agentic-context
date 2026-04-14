@@ -43,7 +43,7 @@ Context management intersects both: retrieval feeds the context window; a poison
 
 ## Tools under investigation
 
-15 tools analyzed; all source-verified against vendored repos.
+16 tools analyzed; all source-verified against vendored repos.
 
 | Tool | Approach | Analysis |
 |---|---|---|
@@ -62,6 +62,7 @@ Context management intersects both: retrieval feeds the context window; a poison
 | [caveman](https://github.com/JuliusBrussee/caveman) | Claude Code skill enforcing compressed output style | [analysis](analysis/ANALYSIS-juliusbrussee-caveman.md) |
 | [Understand-Anything](https://github.com/Lum1104/Understand-Anything) | Multi-agent pipeline → structural + domain knowledge graph dashboard | [analysis](analysis/ANALYSIS-lum1104-understand-anything.md) |
 | [git-semantic-bun](https://github.com/danjdewhurst/git-semantic-bun) | Local vector index over git commit history; hybrid BM25 + semantic ranking | [analysis](analysis/ANALYSIS-danjdewhurst-git-semantic-bun.md) |
+| [osgrep](https://github.com/Ryandonofrio3/osgrep) | npm CLI; LanceDB vector store, tree-sitter AST chunking, Granite 30M dense + mxbai ColBERT 17M reranking, two-stage hybrid search | [analysis](analysis/ANALYSIS-ryandonofrio3-osgrep.md) |
 
 ## Papers under investigation
 
