@@ -102,11 +102,14 @@ for (const file of readdirSync(join(REPO_ROOT, 'references'))) {
 }
 
 // ── ANALYSIS.md → docs/synthesis.md ─────────────────────────────────────────
-const synthesisContent = rewriteLinks(readFileSync(join(REPO_ROOT, 'ANALYSIS.md'), 'utf8'));
-writeFileSync(
-  join(DOCS_ROOT, 'synthesis.md'),
-  ensureFrontmatter(synthesisContent, 'Context Management — Cross-Tool Synthesis'),
-);
+// tableOfContents: false removes the right-side ToC column so the wide
+// comparison matrix can use the full available viewport width.
+const synthesisRaw = rewriteLinks(readFileSync(join(REPO_ROOT, 'ANALYSIS.md'), 'utf8'));
+const synthesisFm = `---\ntitle: "Context Management — Cross-Tool Synthesis"\ntableOfContents: false\n---\n\n`;
+const synthesisBody = synthesisRaw.trimStart().startsWith('---')
+  ? synthesisRaw  // already has frontmatter — leave it (shouldn't happen for ANALYSIS.md)
+  : synthesisFm + synthesisRaw;
+writeFileSync(join(DOCS_ROOT, 'synthesis.md'), synthesisBody);
 
 // ── REVIEWED.md → docs/triage-log.md ─────────────────────────────────────────
 const triageContent = readFileSync(join(REPO_ROOT, 'REVIEWED.md'), 'utf8');

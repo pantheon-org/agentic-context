@@ -2,3 +2,10 @@
 :root {
   --sl-content-width: 68rem;
 }
+
+/* Full-width content on pages without a right-ToC (synthesis/overview pages).
+   Starlight sets data-has-toc on <html> only when a ToC is rendered.
+   Removing max-width lets the content fill the entire area after the left sidebar. */
+html:not([data-has-toc]) .sl-container {
+  max-width: none;
+}
