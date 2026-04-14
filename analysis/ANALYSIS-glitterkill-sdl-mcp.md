@@ -6,14 +6,14 @@ type: analysis
 tool:
   name: "sdl-mcp"
   repo: "https://github.com/GlitterKill/sdl-mcp"
-  version: "latest (2026-04-14)"
+  version: "latest (492b5e8)"
   language: "TypeScript"
   license: "source-available (community free use; commercial distribution requires paid license)"
-source: ["references/glitterkill-sdl-mcp.md"]
+source: ["references/glitterkill-sdl-mcp.md", "tools/glitterkill-sdl-mcp/"]
 local_clone: "tools/glitterkill-sdl-mcp/"
 reviewed: true
 reviewed_date: 2026-04-14
-source_reviewed: false
+source_reviewed: true
 updated: null
 ---
 
@@ -23,69 +23,87 @@ updated: null
 
 ## Summary
 
-SDL-MCP is a TypeScript/Node.js MCP server that indexes a codebase into LadybugDB (a proprietary embedded graph database) and exposes 38 tool surfaces to coding agents. Its two structurally interesting ideas are the **Symbol Card** (a compact ~100-token metadata record per symbol, replacing direct file reads) and the **Iris Gate Ladder** (a four-rung escalation policy that keeps agents at the cheapest representation by default and requires justification to ascend toward raw source). A **Tool Gateway** consolidates 32 flat action schemas into 4 namespace-scoped gateway schemas for `tools/list`.
-
-No local clone was obtained; all analysis is based on the published README. Claims are marked accordingly.
+SDL-MCP is a TypeScript/Node.js MCP server that indexes a codebase into **LadybugDB** (built on [Kuzu](https://kuzudb.com/), an open-source embedded property graph database) and exposes 38 tool surfaces to coding agents. Its two structurally interesting ideas are the **Symbol Card** (a compact ~100-token metadata record per symbol, replacing direct file reads) and the **Iris Gate Ladder** (a five-rung escalation policy with partial protocol enforcement — the top rung is actively gated in source, workflow mode validates all rung transitions). A **Tool Gateway** consolidates 27 legacy flat action tools into 4 namespace-scoped gateway schemas for `tools/list`.
 
 ---
 
-## What it does (from README documentation)
+## What it does (verified from source)
 
 ### Symbol Cards
 
-Every indexed symbol (function, class, interface, type, variable) is stored as a Symbol Card containing: kind, exported flag, file + line range, full signature, LLM-generated summary, invariants, side-effects, dependency list, fan-in/fan-out/churn metrics, community-detection cluster ID, call-chain role (entry/intermediate/exit), and an ETag.
+Every indexed symbol (function, class, interface, type, variable) is stored as a Kuzu `Symbol` node containing (from `src/db/ladybug-schema.ts`): `kind`, `exported`, file location (`rangeStartLine`/`rangeEndLine`), `signatureJson`, `summary`, `summaryQuality` (double), `summarySource` (tracks whether the summary was LLM-generated or auto-derived), `invariantsJson`, `sideEffectsJson`, `roleTagsJson`, fan-in/fan-out/churn metrics, and inline embedding columns for hybrid retrieval.
 
-The ETag mechanism enables conditional re-fetch: if a card's content hasn't changed since the agent last retrieved it, the server returns a cache-hit response and the agent skips the token cost. This is architecturally similar to HTTP conditional GET and is the most concrete token-saving mechanism described with a specific protocol.
+The `summarySource` field confirms that summary provenance is tracked at the node level. `summaryQuality` (a double 0.0–1.0) is also stored, giving the system a handle for filtering low-quality summaries. The model used to generate summaries and the per-symbol cost are not exposed through any tool or configuration option.
 
-LLM-generated summaries are written at index time. The model used, the indexing cost per symbol, and the staleness-detection policy for re-generating summaries are not documented in the README.
+ETag-based conditional re-fetch is implemented as a `CardHash` node in the schema — a stored hash of the card content used to detect staleness and skip unchanged symbols in repeated slice builds (`knownCardEtags` in `slice.build` args).
 
 ### Iris Gate Ladder
 
-Four rungs (cheapest to most expensive):
+The ladder is defined in two source files:
 
-| Rung | Representation | Approx. cost | Agent requirement |
-|------|---------------|-------------|-------------------|
-| 1 | Symbol Card | ~100 tokens | Default; no justification |
-| 2 | Slice (task-scoped subgraph) | Bounded by `max-cards` | Task description |
-| 3 | Annotated source (inline card metadata) | Full source + overhead | Stated need |
-| 4 | Raw source | Full source | Explicit justification |
+**`src/code/gate.ts` — enforces the top rung (`code.needWindow`):**
+Implements `evaluateRequest()` which actively evaluates raw-source requests. Checks include:
+- Policy limit enforcement: `request.expectedLines > policy.maxWindowLines`, `request.maxTokens > policy.maxWindowTokens`, `policy.requireIdentifiers`
+- Identifier matching: if `identifiersToFind` is provided, the window must contain them
+- Utility scoring: symbols above `UTILITY_SCORE_THRESHOLD` (0.3) are auto-approved; below threshold, requests are denied with `nextBestAction` guidance pointing to `getSkeleton` or `getHotPath`
 
-The ladder is a **prompting policy**, not a technical enforcement mechanism — the agent must respect the ladder's rules because the tool surface is structured to surface the cheapest option first. There is no cryptographic or protocol-level prevention of an agent calling raw-source tools directly. Effectiveness depends on agent compliance.
+Denied requests receive a structured `DenialGuidance` response that includes a concrete alternative tool call (e.g. `sdl.code.getSkeleton`) rather than a generic refusal — this steers the agent toward the correct rung automatically.
+
+**`src/code-mode/ladder-validator.ts` — validates workflow sequences:**
+Defines the rung order and validates `sdl.workflow` step sequences:
+
+| Rung | Actions | Notes |
+|------|---------|-------|
+| 0 | `symbol.search` | Entry — find symbols by name/query |
+| 1 | `symbol.getCard`, `slice.build` | Card or task-scoped subgraph |
+| 2 | `code.getSkeleton` | Control flow, no full bodies |
+| 3 | `code.getHotPath` | Exact lines for named identifiers |
+| 4 | `code.needWindow` | Full source window — gated by `gate.ts` |
+
+Warns (or blocks in `enforce` mode) when a workflow step skips more than one rung for the same symbol. Enforcement applies only inside `sdl.workflow` — standalone tool calls are not ladder-validated.
+
+**Enforcement summary**: the top rung (rung 4, `code.needWindow`) is actively gated server-side regardless of mode. Full ladder validation applies inside `sdl.workflow` steps. Outside of workflow mode, agents calling lower rungs (0–3) in arbitrary order are not blocked.
 
 ### Tool Gateway
 
-Gateway mode collapses 32 flat action tools into 4 namespace-scoped gateway tools (`sdl.query`, `sdl.code`, `sdl.repo`, `sdl.agent`), each accepting an `action` discriminator field. The 81% reduction figure refers specifically to the `tools/list` payload size — the JSON schema blob that agents receive at startup. This is a real overhead source (especially for agents running with constrained tool-registration budgets), but it is not the dominant token cost in a typical coding session.
+`src/gateway/index.ts` confirms 4 namespace-scoped gateway tools (`sdl.query`, `sdl.code`, `sdl.repo`, `sdl.agent`) with dual-schema registration: a full Zod schema for server-side validation and a `thin-schemas.ts`-built wire schema for `tools/list`. Legacy flat tool names are registered from `src/gateway/legacy.ts` (27 `registerTool` calls from source — the README figure of "32" is inaccurate).
 
-Flat tool names are optionally emitted alongside gateway tools for backward compatibility.
+The thin wire schema is explicitly designed to reduce `tools/list` payload size while keeping full validation server-side. The 81% reduction figure (as reported) refers to this registration payload, not session-level token consumption.
 
-### SCIP integration
+### LadybugDB (Kuzu)
 
-Ingesting a `.scip` index (generated by scip-typescript, scip-go, rust-analyzer, etc.) upgrades heuristic call edges — built from tree-sitter syntax analysis — to compiler-verified edges with reported confidence 0.95. It also adds `implements` edges and external-dependency nodes not available via syntax analysis alone. This is a meaningful quality improvement for languages with complex module systems (TypeScript barrels, Go interfaces), but it requires the user to maintain a separate compiler toolchain and regenerate the `.scip` index on each build.
+`src/db/ladybug-schema.ts` defines the full graph schema as TypeScript Cypher DDL using the [Kuzu](https://kuzudb.com/) embedded graph database. Kuzu is open-source (MIT), embeds in-process with no server, and supports Cypher queries natively — comparable to SQLite's role in relational tooling. The schema is fully readable and versioned (`LADYBUG_SCHEMA_VERSION`), with a migration runner in `src/db/migration-runner.ts`.
+
+Node tables include: `Repo`, `File`, `Symbol`, `Version`, `SymbolVersion`, `Metrics`, `Cluster`, `Process`, `FileSummary`, `SliceHandle`, `CardHash`, `Memory`, `ScipIngestion`, and others. Relationship tables include: `DEPENDS_ON`, `BELONGS_TO_CLUSTER`, `HAS_MEMORY`, `MEMORY_OF`, `PARTICIPATES_IN`, and others.
+
+**Correction from pre-source analysis**: LadybugDB is NOT opaque or proprietary — it is a well-defined Kuzu graph with a versioned TypeScript schema and migration tooling. The prior characterisation was based on README documentation alone.
 
 ### Delta Packs & Blast Radius
 
-`sdl.delta` computes the semantic change surface for a git diff: which symbol cards changed and which dependent symbols are transitively reachable, returned as a token-budgeted context pack. This is the most directly useful feature for an agent performing a PR review or impact-analysis task — it answers "what is the minimal context needed to understand this change?" without requiring the agent to explore the graph manually.
+`src/delta/index.ts` exports `computeDelta`, `computeBlastRadius`, `runGovernorLoop`, and `snapshotSymbols` — all confirmed present in source. `runGovernorLoop` suggests the blast-radius computation has a budget-management loop (a "governor") to prevent unbounded traversal.
 
 ### Development Memories (opt-in)
 
-Cross-session knowledge persistence backed by the graph: the agent can record task outcomes, architectural decisions, and failure patterns as graph nodes and retrieve them in future sessions. Encryption, access control, and export/import are not documented. This is a session-continuity mechanism distinct from (and complementary to) context-window management.
+A `Memory` node table and `HAS_MEMORY`/`MEMORY_OF`/`MEMORY_OF_FILE` relationship tables are defined in the schema. `src/memory/` contains `file-sync.ts` and `surface.ts`, suggesting memories can be attached to files as well as the session. The `SyncArtifact` node and the existing CLI `export`/`import` commands suggest memory can be exported across sessions, though the mechanism is not fully documented in the README.
 
 ---
 
 ## Benchmark claims — verified vs as-reported
 
-No local source access. All figures are README-sourced and unverified.
+Local clone available at `tools/glitterkill-sdl-mcp/` (commit `492b5e8`). Source review performed; harness not executed.
 
 | Claim | Value | Scope | Assessment |
 |-------|-------|-------|------------|
-| Symbol Card size | ~100 tokens | Per symbol (function/class/etc.) | Plausible as a median; large classes with many fields could be higher. No distribution given. |
-| Full-file read cost | ~2,000 tokens | Per file (implied average) | A reasonable rough estimate for a medium-sized source file; no methodology stated. |
-| Token reduction from cards | ~20× vs file read | Symbol lookup only | Directionally correct if the agent would otherwise read the full file; meaningless if the agent would use grep. |
-| Tool Gateway reduction | 81% | `tools/list` payload only | Scope-limited: reduces startup overhead, not session token cost. Not directly comparable to other tools' session-level reduction claims. |
-| SCIP edge confidence | 0.95 | Post-SCIP ingest | No methodology. Likely the confidence score assigned to the edge type in the data model, not a precision/recall figure. |
+| Symbol Card size | ~100 tokens | Per symbol | Schema confirms ~15–20 fields per symbol; 100 tokens is plausible as median. No size distribution in source. |
+| Full-file read cost | ~2,000 tokens | Per file | Rough estimate; no methodology in source. |
+| Token reduction from cards | ~20× vs file read | Symbol lookup only | Directionally plausible given schema field count vs full-file size. Not measured by any source-accessible harness. |
+| Tool Gateway reduction | 81% | `tools/list` payload | Source confirms thin wire schemas are intentionally minimal — mechanism is real. Figure unverified; no schema size measurement in source. |
+| Legacy tool count | "32" (README) | Flat tools | **27 registerTool calls in `src/gateway/legacy.ts` from source** — README figure is inaccurate. |
+| SCIP edge confidence | 0.95 | Post-SCIP ingest | `ScipIngestion` node confirmed in schema. Confidence value not found in source; likely a data model constant, not a measured recall figure. |
+| Real-world benchmark gates | p50 ≥ 50% capped reduction | `benchmarks/real-world/` matrix | Formal gates defined in `CLAIMS.md`; harness confirmed present but not executed. |
 | GitHub stars | 125 | As of 2026-04-14 | Verified. |
 
-**Verdict on claims**: the 81% figure is the only quantified token claim, and it applies to `tools/list` overhead — a fraction of total session cost. There is no end-to-end session-level token saving figure. The Symbol Card token size (~100) is plausible but unverified; the comparison to "~2,000 tokens for a full file" is a rough ratio, not a benchmark. Claims cannot be verified without a benchmark harness, which is not present in the repo.
+**Verdict**: the thin-schema gateway mechanism is source-confirmed and real. The Symbol Card schema is richer than the README describes (summaryQuality, summarySource, inline embeddings). A formal real-world benchmark harness exists with claim gates — this is more rigorous than most tools in this survey, though no reproduction has been run.
 
 ---
 
@@ -93,62 +111,64 @@ No local source access. All figures are README-sourced and unverified.
 
 ### Strengths
 
-1. **Iris Gate Ladder is the strongest design idea in this survey for context discipline.** The four-rung escalation model operationalises the principle that agents should retrieve the minimum viable context. No other tool reviewed here attempts to structure the retrieval surface as a progressive escalation with explicit justification gates. Whether it works in practice depends on agent compliance, but the interface design is sound.
+1. **Iris Gate Ladder has meaningful server-side enforcement.** `gate.ts` actively evaluates and denies `code.needWindow` requests that fail policy, identifier-match, or utility-score checks. Denied requests return structured `DenialGuidance` with a concrete alternative tool call — the agent is guided to a cheaper rung rather than simply refused. This is stronger than a prompting convention.
 
-2. **ETag-based conditional re-fetch is a concrete, protocol-grounded token saving.** Unlike most tools that reduce context by returning less data, the ETag mechanism allows agents to skip re-fetching unchanged symbols entirely. This is particularly valuable in iterative workflows (e.g. repeated slice rebuilds during a long task).
+2. **LadybugDB is Kuzu — open, versioned, and queryable.** The prior characterisation of LadybugDB as opaque is incorrect. It is a well-defined Kuzu graph database with a versioned TypeScript DDL schema and a migration runner. Kuzu is MIT-licensed, open-source, and supports Cypher. This removes the main vendor-lock-in risk identified in the triage.
 
-3. **Delta Packs directly address a high-value use case.** PR review and change-impact analysis are among the most token-intensive agentic tasks. `sdl.delta` provides a purpose-built primitive that returns a token-budgeted blast-radius pack — better than asking the agent to traverse the graph manually.
+3. **ETag conditional re-fetch is source-confirmed.** `CardHash` nodes store content hashes; `slice.build` accepts `knownCardEtags` to skip unchanged symbols. This is a concrete, implemented token-saving mechanism.
 
-4. **Tool Gateway solves a real but narrow problem.** Reducing `tools/list` overhead benefits agents with strict tool-count limits or slow MCP handshakes; it has no effect on mid-session token cost.
+4. **A formal real-world benchmark harness exists with claim gates.** `benchmarks/real-world/CLAIMS.md` defines `p50 ≥ 50%` capped reduction as the formal gate, enforced by `scripts/check-benchmark-claims.ts`. This is more rigorous than any other tool in this survey except rtk.
+
+5. **Delta Packs have a governor loop.** `runGovernorLoop` in `src/delta/blastRadius.ts` prevents unbounded blast-radius traversal — a practical engineering detail absent from the README.
 
 ### Weaknesses
 
-1. **LadybugDB is opaque.** Unlike codebase-memory-mcp (SQLite, schema accessible) or SocratiCode (Qdrant, documented), LadybugDB is a proprietary embedded store with no documented schema, no Cypher/SQL surface, no migration tooling, and no recovery path. All graph access is mediated by SDL-MCP tools. This is a significant vendor lock-in risk.
+1. **LLM-generated summaries: model, cost, and staleness policy are undocumented.** `summaryQuality` and `summarySource` fields exist, but the model used, the per-symbol generation cost, and the threshold for re-generation are not exposed in config or documentation. For large codebases, the initial index cost could be substantial.
 
-2. **LLM-generated summaries at index time are undocumented.** The model, cost, latency, and staleness policy are not disclosed. For a large codebase, the initial indexing cost could be substantial. Summaries are a core component of Symbol Card value — if they are stale or low-quality, the primary context-efficiency mechanism degrades.
+2. **Source-available license limits commercial integration.** Commercial embedding requires a paid license with unpublished terms. This is a higher friction point than MIT or Apache-2.0 tools.
 
-3. **Source-available license limits integration.** Commercial embedding (in a paid IDE, agent product, etc.) requires a paid license with unpublished terms. This is a higher friction point than MIT or Apache-2.0 tools and limits ecosystem adoption.
+3. **12 languages (Rust indexer) is narrow.** codebase-memory-mcp supports 66; tree-sitter tools support 40+. For polyglot repos with languages outside the Rust indexer's scope, the tree-sitter fallback applies but its coverage is uncharacterised.
 
-4. **12 languages is narrow relative to peers.** codebase-memory-mcp supports 66 languages; tree-sitter-based tools commonly support 40+. SDL-MCP lists 12 (unnamed) for its Rust indexer, with tree-sitter fallback for others. For polyglot repos, coverage gaps are likely.
+4. **Ladder validation applies only in `sdl.workflow` mode.** Outside of workflow mode, agents calling lower rungs in arbitrary order are not validated. Only the top rung (`code.needWindow`) is universally gated.
 
-5. **No reproducible benchmark harness.** Unlike rtk (CI benchmark with 80% gate), jcodemunch-mcp (runnable harness), and juliusbrussee-caveman (committed eval snapshot), SDL-MCP provides no public benchmark harness. All figures are author-run with no methodology.
+5. **Real-world benchmark has Windows-absolute paths.** `benchmarks/real-world/benchmark.config.json` contains `F:/Claude/projects/...` paths — manual fixup is required to reproduce on macOS/Linux.
 
-6. **Iris Gate Ladder is a prompting policy, not enforcement.** An agent that ignores the ladder and calls raw-source tools directly will not be blocked. The mechanism depends on the agent treating the escalation structure as normative. No observed agent compliance data is presented.
+6. **Legacy tool count discrepancy.** README claims 32 flat tools; source contains 27. Minor but indicates documentation is not kept in sync with source.
 
 ### Comparison to adjacent tools
 
 | | SDL-MCP | codebase-memory-mcp | oraios-serena |
 |---|---|---|---|
-| Retrieval primitive | Symbol Card (LLM summary) | AST node (no LLM) | LSP symbol (no LLM) |
-| Context escalation | Iris Gate Ladder (4 rungs) | None | Progressive fallback on oversize |
-| DB | LadybugDB (opaque) | SQLite (accessible) | none (live LSP) |
+| Retrieval primitive | Symbol Card (Kuzu node, LLM summary, ETag) | AST node (SQLite, no LLM) | LSP symbol (live, no LLM) |
+| Context escalation | Iris Gate Ladder (5 rungs, top rung gated) | None | Progressive fallback on oversize |
+| DB | Kuzu (open-source, Cypher, versioned schema) | SQLite (open, accessible) | none (live LSP) |
 | Languages | 12 (Rust) + tree-sitter fallback | 66 | 40+ (via LSP servers) |
 | License | source-available | MIT | MIT |
-| Benchmark harness | None | None (single anecdote) | None |
-| Session token claim | None (end-to-end) | 99.2% vs grep | — |
+| Benchmark harness | Real-world matrix + claim gates (not run) | None (single anecdote) | None |
+| Session token claim | p50 ≥ 50% capped (formal gate, unrun) | 99.2% vs grep (as reported) | — |
 
-SDL-MCP's Symbol Card + Iris Gate Ladder combination is architecturally novel relative to both. codebase-memory-mcp wins on language coverage, license, and data-model transparency. oraios-serena wins on live accuracy (no staleness) at the cost of no offline graph.
+SDL-MCP's Iris Gate Ladder with server-enforced top rung and Kuzu-backed graph is architecturally more mature than the README suggested. codebase-memory-mcp retains the language coverage and MIT license advantage. oraios-serena wins on live accuracy.
 
 ---
 
 ## Recommendation
 
-**Watch — promising architecture, unverified claims, opaque storage.**
+**Watch — strongest escalation model in this survey; benchmark harness exists but unrun.**
 
-The Iris Gate Ladder and ETag conditional re-fetch are the most thoughtfully designed context-discipline mechanisms reviewed in this survey. If they work as described, SDL-MCP represents a meaningful step beyond raw graph retrieval toward policy-enforced incremental context expansion.
+Source review upgrades the assessment on two fronts: LadybugDB is Kuzu (open, not opaque) and the Iris Gate is partially enforced server-side (not just a prompting convention). The real-world benchmark harness with formal claim gates is more rigorous than most peers.
 
-However: there is no end-to-end token benchmark, LadybugDB is opaque with no external accountability, LLM-generated summary cost is undisclosed, the license blocks commercial embedding, and no reproducible evaluation exists. The 81% headline figure applies only to `tools/list` overhead and should not be compared to session-level claims from other tools.
+Remaining blockers for Adopt: the benchmark harness has not been run here; LLM summary cost is undisclosed; the source-available license restricts commercial use; and ladder enforcement outside of `sdl.workflow` mode relies on agent compliance for rungs 0–3.
 
-**Condition for upgrading to Adopt**: a reproducible end-to-end token savings benchmark (real coding task, real agent, real repo) and documentation of LLM summary cost and staleness policy.
+**Condition for upgrading to Adopt**: run the real-world benchmark matrix and confirm p50 ≥ 50% capped reduction on a neutral codebase; document LLM summary cost and staleness policy.
 
 ---
 
 ## Comparison hooks (for ANALYSIS.md matrix)
 
-- **Context escalation model**: Iris Gate Ladder (4 rungs: card → slice → annotated source → raw source); escalation is prompting-policy-based, not enforced at protocol level.
-- **Retrieval primitive**: Symbol Card (~100 tokens, LLM-generated summary, ETag-conditional re-fetch).
-- **Token saving scope**: `tools/list` 81% (gateway mode, as reported); no end-to-end session figure.
-- **Storage**: LadybugDB (opaque embedded, single-file); no schema documentation or Cypher/SQL surface.
+- **Context escalation model**: Iris Gate Ladder (5 rungs: search → card/slice → skeleton → hot-path → window); top rung gated server-side by `gate.ts`; all rungs validated in `sdl.workflow` mode.
+- **Retrieval primitive**: Symbol Card (~100 tokens, LLM-generated summary with `summaryQuality` score, ETag `CardHash` conditional re-fetch).
+- **Token saving scope**: `tools/list` 81% (gateway mode, thin wire schema confirmed in source, as reported); no end-to-end session figure; formal real-world benchmark harness unrun.
+- **Storage**: LadybugDB on Kuzu (open-source MIT embedded graph DB, Cypher queries, versioned TypeScript DDL schema, migration runner).
 - **License risk**: source-available; commercial embedding requires paid license with unpublished terms.
-- **Unique value**: Delta Packs (`sdl.delta`) for token-budgeted blast-radius retrieval on git diffs; ETag conditional re-fetch to skip unchanged symbols.
-- **Unverified**: all token claims; LLM summary quality/cost; SCIP edge confidence methodology.
+- **Unique value**: Delta Packs with governor loop for bounded blast-radius; ETag `CardHash` skip for unchanged symbols; `DenialGuidance` steers agent to correct rung on gate denial.
+- **Source-corrected**: README claims 32 legacy flat tools — source has 27. LadybugDB described as proprietary in README — it is Kuzu (MIT open-source).
