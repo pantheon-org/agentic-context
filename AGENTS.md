@@ -109,13 +109,15 @@ Do not promote solely because triage is complete — most references should rema
 
 ### Workflow
 
-1. **Vendor the source.** Add the repo as a git submodule into `tools/<slug>/` pinned to the commit examined:
+1. **Vendor the source.** Add the repo as a git submodule into `tools/<slug>/` pinned to the commit examined. This is **required before writing an ANALYSIS document** — do not proceed to Step 2 without a local clone.
 
    ```sh
    git submodule add <repo-url> tools/<slug>
    ```
 
-   Record the pinned commit in the reference frontmatter (`local_clone: ../tools/<slug>`). For large or peripheral repos, link-only is acceptable — but note that a link-only analysis relies on public documentation rather than direct source inspection, and all claims must be marked `(as reported)` even if they look verified.
+   Record the path in the analysis frontmatter (`local_clone: tools/<slug>/`). Set `source_reviewed: true` only after you have actually read the source files.
+
+   > **No exceptions for link-only analyses.** A write-up based solely on public documentation is a reference summary (`references/{slug}.md`), not an analysis. Do not create `analysis/ANALYSIS-{slug}.md` without a vendored clone.
 
 2. **Read the source.** Focus on: the critical path from agent call to token-reduced output, data structures used to represent context, and any benchmark harness (`benchmarks/`, `eval/`, `tests/`).
 
@@ -202,6 +204,63 @@ Keep entries to one or two sentences — the goal is a quick decision signal, no
 - Distinguish clearly between **"as reported"** (paper/tool claims) and **verified** (you ran it or cross-checked).
 - Flag unverified benchmarks with `(as reported)`.
 - If a claim cannot be verified from the source, note it as a gap, not a fact.
+
+---
+
+## Updating the GitHub Pages site
+
+The site is an Astro/Starlight build in `site/`. Generated content is gitignored — deployment is fully automatic.
+
+### How it works
+
+```text
+source files (repo root)
+  analysis/ANALYSIS-*.md
+  benchmarks/sources/*-repro.md
+  references/*.md
+  ANALYSIS.md
+  REVIEWED.md
+        │
+        ▼
+  site/scripts/copy-content.mjs   ← runs at build time; rewrites links, strips slug field
+        │
+        ▼
+  site/src/content/docs/          ← gitignored; never commit manually
+        │
+        ▼
+  site/dist/                      ← built output, deployed to GitHub Pages
+```
+
+### When the site updates
+
+The `.github/workflows/deploy-site.yml` workflow triggers on every push to `main` that touches:
+
+```text
+analysis/**  ·  benchmarks/**  ·  references/**
+ANALYSIS.md  ·  REVIEWED.md   ·  site/**
+```
+
+Pushing source file changes to `main` is all that is required — CI handles the copy and build.
+
+### Verifying locally before pushing
+
+```bash
+cd site
+npm run build        # runs copy-content.mjs then astro build
+# open site/dist/   # or: npm run preview
+```
+
+A clean build with the expected page count confirms the content is valid. New tool entries should produce three pages: `/analysis/<slug>/`, `/benchmarks/<slug>/`, `/references/<slug>/`.
+
+### Checklist for a new tool entry
+
+Every new tool triage + analysis should produce these source files before pushing:
+
+- [ ] `references/<slug>.md` → becomes `/references/<slug>/`
+- [ ] `analysis/ANALYSIS-<slug>.md` → becomes `/analysis/<slug>/`
+- [ ] `benchmarks/sources/<slug>-repro.md` → becomes `/benchmarks/<slug>/`
+- [ ] Row in `ANALYSIS.md` matrix and reading order
+- [ ] Row in `REVIEWED.md` summary table
 
 ---
 
