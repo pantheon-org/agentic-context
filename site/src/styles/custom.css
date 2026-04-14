@@ -16,9 +16,13 @@ html[data-has-hero] .sl-markdown-content ul {
   text-align: left;
 }
 
-/* Full-width content on pages without a right-ToC (synthesis/overview pages).
-   Starlight sets data-has-toc on <html> only when a ToC is rendered.
-   Removing max-width lets the content fill the entire area after the left sidebar. */
-html:not([data-has-toc]) .sl-container {
+/* Full-width content on synthesis/overview pages (no ToC, no hero).
+   Exclude data-has-hero so the landing page keeps its centred max-width. */
+html:not([data-has-toc]):not([data-has-hero]) .sl-container {
   max-width: none;
+}
+
+/* Landing page: centre the content column inside the full-width main pane. */
+html[data-has-hero] .sl-container {
+  margin-inline: auto;
 }
