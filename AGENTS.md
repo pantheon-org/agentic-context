@@ -264,6 +264,22 @@ Every new tool triage + analysis should produce these source files before pushin
 
 ---
 
+## Keeping top-level docs accurate
+
+After any session that adds or modifies tools, papers, or analyses, verify that these files are accurate and up to date before closing the session:
+
+| File | What to check |
+|---|---|
+| `README.md` | Count of tools/analyses/references; any featured tools or highlights |
+| `ANALYSIS.md` | Matrix has a row for every promoted analysis; reading order is complete; counts in header |
+| `REVIEWED.md` | Every triaged/analysed tool has a row with correct status (`pending` / `analysis`) |
+| `references/REFERENCE_INDEX.md` | New reference has a row under the correct category table |
+| `PUNCHLIST.md` | Statuses reflect actual work done in the session |
+
+The landing page (`site/src/content/docs/index.md`) counts are updated automatically by `site/scripts/copy-content.mjs` at build time — do not edit them manually.
+
+---
+
 ## Commits
 
 - Conventional commit messages: `feat:`, `docs:`, `chore:`, `fix:`, `analysis:`.
