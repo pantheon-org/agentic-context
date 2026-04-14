@@ -123,7 +123,7 @@ Do not promote solely because triage is complete — most references should rema
 
 4. **Write `analysis/ANALYSIS-{slug}.md`.** Follow the conventions in "Writing ANALYSIS documents" below.
 
-5. **Update `ANALYSIS.md`.** Add a row to the comparison matrix and a line under "Recommended reading order" if the analysis is worth reading first.
+5. **Update `ANALYSIS.md`.** Add a row to the comparison matrix (including the **Overlap & recommendation** column — which tools it overlaps with and which to prefer) and a line under "Recommended reading order" if the analysis is worth reading first.
 
 6. **Update `REVIEWED.md`.** Change the status from `pending` to `analysis`.
 
@@ -170,6 +170,30 @@ Use these terms consistently across all documents in this repo.
 - Readers know what a context window is and have used RAG at least once.
 - Readers do **not** know the internal architecture of the tool/paper being analyzed.
 - Explain non-obvious design choices; skip basic LLM background.
+
+---
+
+## ANALYSIS.md comparison matrix
+
+The matrix is the primary at-a-glance overview. Every row must include all seven columns:
+
+| Column | Content |
+|---|---|
+| Tool / Paper | Name linked to the `analysis/ANALYSIS-{slug}.md` file |
+| Approach | One-sentence mechanism description |
+| Compression | Headline figure with source qualifier (`as reported` / `verified`) |
+| Token budget model | How the tool decides what to include/exclude |
+| Benchmarks | Harness status and reproduction state |
+| Notes | License, stars, material risks |
+| **Overlap & recommendation** | Which tools cover similar ground; which to prefer and when |
+
+**Overlap & recommendation** is the most important column for a synthesis document. It must answer two questions:
+1. *What does this tool overlap with?* — name the peers by slug.
+2. *When should you pick this one over them?* — one concrete differentiator (license, depth, dep footprint, modality, etc.).
+
+Example: `Overlaps code-review-graph and jcodemunch-mcp (AST-graph family). Prefer code-review-graph for richer toolset (MIT); use this only if WASM zero-dep bundle is required.`
+
+Keep entries to one or two sentences — the goal is a quick decision signal, not a full comparison.
 
 ---
 
