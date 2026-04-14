@@ -50,6 +50,7 @@ For full content, open the linked file. For papers, see `references/papers/` for
 
 | Slug | Author | Description |
 |---|---|---|
+| [glitterkill-sdl-mcp](glitterkill-sdl-mcp.md) | GlitterKill | TypeScript MCP server: Symbol Cards (~100 tokens/symbol), Iris Gate Ladder 4-rung context escalation, SCIP compiler-grade edges, 38 tool surfaces, ETag caching; 81% `tools/list` reduction in gateway mode (as reported); source-available; 125 stars |
 | [oraios-serena](oraios-serena.md) | oraios | MCP server: LSP-backed semantic code retrieval and symbol-level editing for coding agents; 40+ languages, built-in agent memory system (MIT) |
 | [context-mode](web/context-mode.md) | mksglu | MCP plugin: subprocess sandbox + SQLite/FTS5 event log; extends session from ~30 min to ~3 hours via BM25 compaction recovery; 12 platforms (ELv2) |
 | [rtk-ai-rtk](rtk-ai-rtk.md) | rtk-ai | CLI proxy: transparent hook-based output compression for 100+ dev commands; single Rust binary, <10 ms overhead, no LLM involvement; inline test enforcement is runtime-only (rtk verify), not compile-time (Apache-2.0) |

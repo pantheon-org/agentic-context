@@ -43,3 +43,6 @@
 [submodule "tools/tobi-qmd"]
 	path = tools/tobi-qmd
 	url = https://github.com/tobi/qmd
+[submodule "tools/glitterkill-sdl-mcp"]
+	path = tools/glitterkill-sdl-mcp
+	url = https://github.com/GlitterKill/sdl-mcp
