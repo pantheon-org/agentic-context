@@ -3,6 +3,19 @@
   --sl-content-width: 68rem;
 }
 
+/* Landing page (splash template): centre headings, table, and sections list.
+   Starlight sets data-has-hero on <html> for splash/hero pages only. */
+html[data-has-hero] .sl-markdown-content {
+  text-align: center;
+}
+html[data-has-hero] .sl-markdown-content table {
+  margin-inline: auto;
+}
+html[data-has-hero] .sl-markdown-content ul {
+  display: inline-block;
+  text-align: left;
+}
+
 /* Full-width content on pages without a right-ToC (synthesis/overview pages).
    Starlight sets data-has-toc on <html> only when a ToC is rendered.
    Removing max-width lets the content fill the entire area after the left sidebar. */

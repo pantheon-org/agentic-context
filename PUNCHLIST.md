@@ -40,8 +40,3 @@ Legend: `[ ]` pending · `[~]` in progress · `[x]` done · `[-]` skipped (see R
 - [x] `scripts/extract_pdf.py` — extract PDFs to Markdown snapshots via marker-pdf
 - [x] `scripts/sync_ref.py` — download PDFs listed in PUNCHLIST.md to `references/papers/`
 - [x] `scripts/build_reference_index.py` — generate/sync BibTeX and reference index
-
-## Site
-
-- [ ] Centre the main landing page content (hero + coverage table + sections)
-- [ ] Remove the GitHub link from the landing page hero actions

@@ -12,10 +12,7 @@ hero:
     - text: Triage log
       link: /agentic-context/triage-log/
       icon: open-book
-    - text: GitHub
-      link: https://github.com/pantheon-org/agentic-context
-      icon: github
-      variant: minimal
+
 ---
 
 ## Coverage
