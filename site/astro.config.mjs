@@ -11,6 +11,7 @@ export default defineConfig({
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/pantheon-org/agentic-context' },
       ],
+      customCss: ['./src/styles/custom.css'],
       components: {
         PageTitle: './src/components/DocHeader.astro',
       },

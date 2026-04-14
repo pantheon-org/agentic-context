@@ -53,6 +53,20 @@ function ensureFrontmatter(content, title) {
   return `---\ntitle: "${title.replace(/"/g, '\\"')}"\n---\n\n${content}`;
 }
 
+/**
+ * Rewrite repo-relative markdown links to site-absolute URLs so they resolve
+ * correctly when the document is published to /agentic-context/.
+ *
+ * Handles:
+ *   analysis/ANALYSIS-{slug}.md   → /agentic-context/analysis/{slug}/
+ *   benchmarks/sources/{slug}-repro.md → /agentic-context/benchmarks/{slug}/
+ */
+function rewriteLinks(content) {
+  return content
+    .replace(/\(analysis\/ANALYSIS-([^)]+)\.md\)/g, '(/agentic-context/analysis/$1/)')
+    .replace(/\(benchmarks\/sources\/([^)]+)-repro\.md\)/g, '(/agentic-context/benchmarks/$1/)');
+}
+
 function copyMd(srcPath, destPath) {
   const raw = readFileSync(srcPath, 'utf8');
   writeFileSync(destPath, stripSlug(raw));
@@ -88,7 +102,7 @@ for (const file of readdirSync(join(REPO_ROOT, 'references'))) {
 }
 
 // ── ANALYSIS.md → docs/synthesis.md ─────────────────────────────────────────
-const synthesisContent = readFileSync(join(REPO_ROOT, 'ANALYSIS.md'), 'utf8');
+const synthesisContent = rewriteLinks(readFileSync(join(REPO_ROOT, 'ANALYSIS.md'), 'utf8'));
 writeFileSync(
   join(DOCS_ROOT, 'synthesis.md'),
   ensureFrontmatter(synthesisContent, 'Context Management — Cross-Tool Synthesis'),

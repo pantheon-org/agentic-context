@@ -14,6 +14,7 @@ Research synthesis across all analyzed tools and papers. Updated as individual `
 | [codebase-memory-mcp](analysis/ANALYSIS-deusdata-codebase-memory-mcp.md) | AST-to-SQLite knowledge graph; structural graph queries replace file reads | ~90–99% vs grep (directional; 5 live queries ~1,095 tokens verified) | None — result set size is the bound | No runnable harness; live queries verified | Dynamic language edges heuristic; no auth on MCP/UI; MIT |
 | [code-review-graph](analysis/ANALYSIS-tirth8205-code-review-graph.md) | Tree-sitter AST → SQLite; blast-radius + community detection + hybrid search; 22 tools | 8.2× average (as reported, range 0.7×–16.4×); 49× "daily tasks" unverified | None — result set size | `evaluate/` runner exists; not reproduced; MRR 0.35 (stated, low) | 7,624 stars; Python 3.10+; active community; MIT |
 | [codegraph](analysis/ANALYSIS-colbymchenry-codegraph.md) | Tree-sitter AST → SQLite; single `codegraph_explore` blast-radius tool | 94% fewer tool calls / 77% faster (as reported, own eval runner — unverified) | None — traversal result set varies | `evaluation/runner.ts` exists; not reproduced; 8.2× table is CRG's data | WASM bundled; zero native deps; README integrity issue; 412 stars; MIT |
+| [graphify](analysis/ANALYSIS-graphify.md) | Prompt-orchestrated multi-modal knowledge graph (skill.md drives Python CLI); Tree-sitter AST + LLM semantic extraction; Leiden community detection | 71.5× token reduction (as reported; single curated 52-file corpus; extreme baseline) | None — graph query cost vs raw file reads | No standalone harness; computed inline during `/graphify` runs | Multi-modal: code + PDF + image + video; persistent `graph.json`; 7-tool MCP server mode; 3.7k+ stars; MIT |
 | [Understand-Anything](analysis/ANALYSIS-lum1104-understand-anything.md) | Multi-agent LLM pipeline → structural + domain graph dashboard | N/A — developer comprehension focus; no token reduction claim | None | None documented | 8,081 stars; TypeScript/Node.js; MIT |
 | [git-semantic-bun](analysis/ANALYSIS-danjdewhurst-git-semantic-bun.md) | Local vector index over git commit messages | N/A — retrieval, not summarization | None | `gsb benchmark` requires user-provided queries; no published figures | No MCP; pre-stable; 3 stars; MIT |
 | [qmd](analysis/ANALYSIS-tobi-qmd.md) | 8-step hybrid query: BM25 probe → LLM query expansion → vec search → RRF fusion → chunk selection → reranking → score blend → dedup | N/A — retrieval, not output compression | Implicit: caller sets result limit | Full `qmd bench` harness; no published results; vitest eval suite (6 docs, 24 queries) | 20.3k stars; custom 1.7B query expansion model (no training artifacts); no HTTP auth; MIT |
@@ -35,17 +36,18 @@ Research synthesis across all analyzed tools and papers. Updated as individual `
 
 ## Recommended reading order
 
-1. **context-mode** — read first; establishes the MCP-layer interception pattern and the two-speed retrieval distinction that all subsequent tool comparisons should reference.
+1. **context-mode** — read first; establishes the MCP-layer interception pattern and the two-speed retrieval distinction (summarization vs searchable index) that all subsequent tool comparisons should reference.
 2. **codebase-memory-mcp** — read second; graph queries are complementary to context-mode (structural navigation vs output sandboxing); together they cover the two main sources of context bloat in coding sessions.
-3. **code-review-graph** — read third; canonical example of the AST-graph approach with community detection and wiki generation; use as the benchmark baseline for graph-based tools.
-4. **codegraph** — read alongside code-review-graph; architecturally similar but WASM-bundled and single-tool; important README integrity caveat.
-5. **serena** — read fifth; LSP-backed approach is orthogonal to graph tools; the progressive fallback mechanism is a novel pattern worth understanding for any tool that returns variable-size results.
-6. **rtk** — read sixth; representative of the CLI-proxy category; important caveat that all figures use a chars/4 heuristic, not a real tokenizer.
-7. **jcodemunch-mcp** — read seventh alongside code-review-graph and codegraph; same AST-graph family but narrowest benchmark (3 repos); non-OSI license is a material risk.
-8. **socraticode** — read alongside jcodemunch-mcp; Qdrant-backed rather than SQLite; the 61.5% figure is bytes not tokens from a single session — important methodological caveat.
-9. **n2-arachne** — read for the fixed-budget allocation model; the chars/3.5 heuristic and non-commercial license are the two primary risks.
-10. **jdocmunch-mcp** — read for the O(1) byte-offset pattern; note the savings accounting flaw and opt-out telemetry before adopting.
-11. **qmd** — read for the most sophisticated retrieval pipeline in this survey; relevant primarily when the agent's knowledge base is markdown, not code.
-12. **caveman** — read last; output-style compression is a different category from all others; useful for token budgets where output verbosity is the bottleneck.
-13. **Understand-Anything** — read if developer comprehension (domain mapping, not token reduction) is the target; different value proposition from all others in this list.
-14. **git-semantic-bun** — borderline scope; read only if semantic retrieval from git history is specifically needed.
+3. **code-review-graph** — canonical AST-graph tool; community detection, wiki generation, and blast-radius analysis; use as the benchmark baseline for all other graph-based tools.
+4. **codegraph** — read alongside code-review-graph; architecturally similar but WASM-bundled and single-tool; important README integrity caveat (benchmark table copied from code-review-graph).
+5. **graphify** — read next in the graph family; prompt-orchestrated multi-modal variant (LLM drives Python CLI); 71.5× headline figure is on a curated 52-file corpus with an extreme baseline — understand the methodology before comparing to peers.
+6. **serena** — LSP-backed approach is orthogonal to AST-graph tools; the progressive fallback on oversized results is a novel pattern worth understanding for any tool that returns variable-size context.
+7. **jcodemunch-mcp** — same AST-graph family as code-review-graph; narrowest benchmark (3 repos, range 79.7–99.8%); non-OSI license is a material risk.
+8. **rtk** — representative of the CLI-proxy category; simplest architecture in the survey; important caveat that all figures use a chars/4 heuristic, not a real tokenizer.
+9. **n2-arachne** — read for the fixed-percentage budget allocation model; chars/3.5 heuristic and non-commercial license are the two primary risks.
+10. **jdocmunch-mcp** — read for the O(1) byte-offset retrieval pattern; note the savings accounting flaw (counts all sections, not returned) and opt-out telemetry before adopting.
+11. **socraticode** — Qdrant-backed hybrid search (dense + BM25 via RRF); Docker required; the 61.5% figure is bytes not tokens from a single session — important methodological caveat shared with jdocmunch.
+12. **qmd** — most sophisticated retrieval pipeline in this survey (8 steps: BM25 probe → LLM query expansion → vec → RRF → rerank); relevant primarily when the agent's knowledge base is markdown, not code.
+13. **caveman** — output-style compression is a different category from all others; useful when output verbosity rather than input retrieval is the token budget bottleneck.
+14. **Understand-Anything** — read if developer comprehension (domain mapping, not token reduction) is the target; different value proposition from every other tool in this list.
+15. **git-semantic-bun** — borderline scope; read only if semantic retrieval from git commit history is specifically needed.

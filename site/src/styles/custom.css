@@ -1,0 +1,4 @@
+/* Wider content column — default ~45rem is too narrow for tables and code blocks */
+:root {
+  --sl-content-width: 68rem;
+}
