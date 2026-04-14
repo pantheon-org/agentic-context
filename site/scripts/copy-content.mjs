@@ -75,31 +75,46 @@ function copyMd(srcPath, destPath) {
 // ── analysis/ANALYSIS-*.md → docs/analysis/{slug}.md ─────────────────────────
 const analysisDocsDir = join(DOCS_ROOT, 'analysis');
 resetDir(analysisDocsDir);
+let analysisCount = 0;
 for (const file of readdirSync(join(REPO_ROOT, 'analysis'))) {
   if (!file.startsWith('ANALYSIS-') || !file.endsWith('.md')) continue;
   const slug = file.slice('ANALYSIS-'.length, -'.md'.length);
   copyMd(join(REPO_ROOT, 'analysis', file), join(analysisDocsDir, `${slug}.md`));
+  analysisCount++;
 }
 
 // ── benchmarks/sources/*.md → docs/benchmarks/{slug}.md ──────────────────────
 const benchmarksDocsDir = join(DOCS_ROOT, 'benchmarks');
 resetDir(benchmarksDocsDir);
+let benchmarkCount = 0;
 for (const file of readdirSync(join(REPO_ROOT, 'benchmarks', 'sources'))) {
   if (!file.endsWith('.md')) continue;
   const slug = file.endsWith('-repro.md')
     ? file.slice(0, -'-repro.md'.length)
     : file.slice(0, -'.md'.length);
   copyMd(join(REPO_ROOT, 'benchmarks', 'sources', file), join(benchmarksDocsDir, `${slug}.md`));
+  benchmarkCount++;
 }
 
 // ── references/*.md (top-level only, skip INDEX) → docs/references/{slug}.md ─
 const refsDocsDir = join(DOCS_ROOT, 'references');
 resetDir(refsDocsDir);
 const SKIP_REFS = new Set(['REFERENCE_INDEX.md']);
+let referenceCount = 0;
 for (const file of readdirSync(join(REPO_ROOT, 'references'))) {
   if (!file.endsWith('.md') || SKIP_REFS.has(file)) continue;
   copyMd(join(REPO_ROOT, 'references', file), join(refsDocsDir, file));
+  referenceCount++;
 }
+
+// ── site/src/content/docs/index.md — auto-update coverage counts ─────────────
+const indexPath = join(DOCS_ROOT, 'index.md');
+let indexContent = readFileSync(indexPath, 'utf8');
+indexContent = indexContent
+  .replace(/(\| Tool analyses\s*\|\s*)\d+(\s*\|)/, `$1${analysisCount}$2`)
+  .replace(/(\| Benchmark reproductions\s*\|\s*)\d+(\s*\|)/, `$1${benchmarkCount}$2`)
+  .replace(/(\| Triaged references\s*\|\s*)\d+(\s*\|)/, `$1${referenceCount}$2`);
+writeFileSync(indexPath, indexContent);
 
 // ── ANALYSIS.md → docs/synthesis.md ─────────────────────────────────────────
 // tableOfContents: false removes the right-side ToC column so the wide

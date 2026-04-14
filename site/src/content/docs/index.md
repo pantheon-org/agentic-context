@@ -19,9 +19,9 @@ hero:
 
 | Category | Count |
 |---|---|
-| Tool analyses | 15 |
-| Benchmark reproductions | 15 |
-| Triaged references | 19 |
+| Tool analyses | 16 |
+| Benchmark reproductions | 16 |
+| Triaged references | 20 |
 
 ## Sections
 
