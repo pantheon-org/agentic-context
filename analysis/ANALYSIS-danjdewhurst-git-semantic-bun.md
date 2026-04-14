@@ -11,7 +11,7 @@ tool:
   language: "TypeScript"
   license: "MIT"
 source: "references/danjdewhurst-git-semantic-bun.md"
-local_clone: null
+local_clone: "tools/danjdewhurst-git-semantic-bun/"
 reviewed: true
 reviewed_date: 2026-04-13
 source_reviewed: true

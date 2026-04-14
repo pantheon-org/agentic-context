@@ -10,7 +10,7 @@ tool:
   language: "Python"
   license: "Custom (free non-commercial; paid tiers for commercial use)"
 source: "references/jgravelle-jcodemunch-mcp.md"
-local_clone: null
+local_clone: "tools/jgravelle-jcodemunch-mcp/"
 reviewed: true
 reviewed_date: 2026-04-13
 source_reviewed: true

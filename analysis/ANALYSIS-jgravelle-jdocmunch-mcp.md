@@ -10,7 +10,7 @@ tool:
   language: "Python"
   license: "Dual (non-commercial free / commercial paid)"
 source: "references/jgravelle-jdocmunch-mcp.md"
-local_clone: null
+local_clone: "tools/jgravelle-jdocmunch-mcp/"
 reviewed: true
 reviewed_date: 2026-04-13
 source_reviewed: true

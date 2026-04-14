@@ -10,7 +10,7 @@ tool:
   language: "TypeScript/Node.js"
   license: "MIT"
 source: "references/lum1104-understand-anything.md"
-local_clone: null
+local_clone: "tools/lum1104-understand-anything/"
 reviewed: true
 reviewed_date: 2026-04-13
 source_reviewed: true

@@ -10,7 +10,7 @@ tool:
   language: "Rust"
   license: "Apache-2.0"
 source: "references/rtk-ai-rtk.md"
-local_clone: null
+local_clone: "tools/rtk/"
 reviewed: true
 reviewed_date: 2026-04-13
 source_reviewed: true

@@ -10,7 +10,7 @@ tool:
   language: "C"
   license: "MIT"
 source: ["references/deusdata-codebase-memory-mcp.md", "tools/deusdata-codebase-memory-mcp/"]
-local_clone: null
+local_clone: "tools/deusdata-codebase-memory-mcp/"
 reviewed: true
 reviewed_date: 2026-04-13
 source_reviewed: true

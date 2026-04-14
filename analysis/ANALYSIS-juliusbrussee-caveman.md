@@ -11,7 +11,7 @@ tool:
   language: "Python (benchmarks/evals), Markdown (skill prompts), Node.js (installer)"
   license: "MIT"
 source: "references/juliusbrussee-caveman.md"
-local_clone: null
+local_clone: "tools/juliusbrussee-caveman/"
 reviewed: true
 reviewed_date: 2026-04-13
 source_reviewed: true

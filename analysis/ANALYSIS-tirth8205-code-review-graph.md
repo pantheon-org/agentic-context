@@ -10,7 +10,7 @@ tool:
   language: "Python"
   license: "MIT"
 source: "references/tirth8205-code-review-graph.md"
-local_clone: null
+local_clone: "tools/tirth8205-code-review-graph/"
 reviewed: true
 reviewed_date: 2026-04-13
 source_reviewed: true

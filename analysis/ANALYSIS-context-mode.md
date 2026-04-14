@@ -10,7 +10,7 @@ tool:
   language: "TypeScript"
   license: "MIT"
 source: ["references/web/context-mode.md", "tools/context-mode/"]
-local_clone: null
+local_clone: "tools/context-mode/"
 reviewed: true
 reviewed_date: 2026-04-13
 source_reviewed: true

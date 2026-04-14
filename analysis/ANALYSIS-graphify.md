@@ -10,7 +10,7 @@ tool:
   language: "Python"
   license: "MIT"
 source: ["references/safishamsi-graphify.md", "tools/graphify/"]
-local_clone: null
+local_clone: "tools/graphify/"
 reviewed: true
 reviewed_date: 2026-04-13
 source_reviewed: true
